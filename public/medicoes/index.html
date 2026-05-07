@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>GREENHERB - Medições</title>
+		<link rel="stylesheet" href="/shared/style.css">
+		<link rel="stylesheet" href="medicoes.css">
+		<script src="/shared/auth.js"></script>
+		<script src="/shared/components.js" defer></script>
+	</head>
+	<body>
+		<app-header title="Gestão de Medições"></app-header>
+		<main>
+			<section class="painel-alertas" id="painel-alertas">
+				<h2 class="alertas-titulo">🚨 Alertas Ativos</h2>
+				<div id="listaAlertas">A carregar alertas...</div>
+			</section>
+			<section id="form-medicao">
+				<h2>Registar Leitura Ambiental</h2>
+				<form id="medicaoForm">
+					<div class="input-group">
+						<label>Lote Alvo:</label>
+						<select id="loteIdMed" required>
+							<option disabled selected>A carregar lotes...</option>
+						</select>
+					</div>
+					<div class="input-group inline-inputs">
+						<div class="input-flex-1">
+							<label>Temperatura (°C):</label>
+							<input type="number" step="0.1" id="valTemp" required>
+						</div>
+						<div class="input-flex-1">
+							<label>Humidade (%):</label>
+							<input type="number" id="valHum" required>
+						</div>
+						<div class="input-flex-1">
+							<label>Luminosidade (Lux):</label>
+							<input type="number" id="valLum" required>
+						</div>
+					</div>
+					<button type="submit">Gravar Medição e Verificar Regras</button>
+				</form>
+			</section>
+		</main>
+		<app-footer></app-footer>
+		<script src="/shared/database.js" defer></script>
+		<script src="medicoes.js" defer></script>
+		<script src="/shared/service-worker-register.js" defer></script>
+	</body>
+</html>

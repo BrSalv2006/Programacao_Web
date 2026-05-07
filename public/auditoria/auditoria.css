@@ -1,0 +1,76 @@
+.table-responsive {
+	overflow-x: auto;
+}
+
+.audit-table {
+	width: 100%;
+	border-collapse: collapse;
+	background: white;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+	border-radius: 8px;
+	overflow: hidden;
+}
+
+.audit-table th,
+.audit-table td {
+	padding: 1rem;
+	text-align: left;
+	border-bottom: 1px solid var(--border);
+}
+
+.audit-table th {
+	background-color: var(--green-50);
+	color: var(--green-900);
+	font-weight: 800;
+}
+
+.audit-table tr:hover {
+	background-color: #f8fafc;
+}
+
+.badge-perfil {
+	display: inline-block;
+	padding: 0.2rem 0.5rem;
+	border-radius: 4px;
+	font-size: 0.75rem;
+	font-weight: bold;
+	background: #e2e8f0;
+	color: #475569;
+}
+
+.badge-perfil.admin {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+.badge-perfil.responsavel {
+	background: #dbeafe;
+	color: #1e3a8a;
+}
+
+.badge-perfil.tecnico {
+	background: #fef3c7;
+	color: #92400e;
+}
+
+/* Novas classes criadas para substituir os estilos inline (CSP Compliant) */
+.text-center {
+	text-align: center;
+}
+
+.text-error {
+	color: #ef4444;
+	text-align: center;
+}
+
+.audit-subtitle {
+	text-align: center;
+	color: var(--text-muted);
+	margin-bottom: 2rem;
+}
+
+.log-date {
+	white-space: nowrap;
+	font-size: 0.85rem;
+	color: #64748b;
+}

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>GREENHERB - Autenticação</title>
+		<link rel="stylesheet" href="/shared/style.css">
+		<link rel="stylesheet" href="login.css">
+	</head>
+	<body class="login-body">
+		<main class="login-container">
+			<div class="login-card">
+				<div class="login-header">
+					<img src="/shared/images/greenhouse.png" alt="Greenherb Logo" class="login-logo">
+					<h1>GREENHERB</h1>
+					<p>Plataforma de Gestão de Estufa</p>
+				</div>
+				<form id="loginForm">
+					<div class="input-group">
+						<label for="username">Utilizador:</label>
+						<input type="text" id="username" placeholder="Insira o seu nome" required>
+					</div>
+					<div class="input-group">
+						<label for="perfil">Perfil de Acesso (Simulação):</label>
+						<select id="perfil" required>
+							<option value="Administrador">Administrador</option>
+							<option value="Responsável">Responsável</option>
+							<option value="Técnico">Técnico</option>
+						</select>
+					</div>
+					<button type="submit" class="btn-login">Entrar no Sistema</button>
+				</form>
+			</div>
+		</main>
+		<script src="/shared/auth.js" defer></script>
+		<script src="login.js" defer></script>
+	</body>
+</html>

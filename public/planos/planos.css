@@ -1,0 +1,89 @@
+.hidden {
+	display: none !important;
+}
+
+.dynamic-sec {
+	background-color: var(--green-50);
+	border: 1px dashed var(--green-600);
+	border-radius: var(--radius-sm);
+	padding: 1.5rem;
+	margin-bottom: 1.5rem;
+	animation: fadeIn 0.3s ease-in-out;
+}
+
+.inline-inputs {
+	display: flex;
+	gap: 10px;
+}
+
+.inline-inputs input {
+	flex: 1;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-5px);
+	}
+
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.grid-list {
+	display: grid;
+	gap: 1.25rem;
+	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.plano-card {
+	background: var(--white);
+	border: 1px solid var(--border);
+	border-left: 6px solid var(--green-600);
+	border-radius: var(--radius-sm);
+	padding: 1.5rem;
+	box-shadow: 0 4px 12px rgba(15, 47, 34, 0.05);
+	transition: transform 0.2s;
+}
+
+.plano-card:hover {
+	transform: translateY(-3px);
+}
+
+.plano-card h3 {
+	margin: 0 0 0.8rem 0;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 1.2rem;
+}
+
+.plano-card p {
+	font-size: 0.9rem;
+	margin-bottom: 0.4rem;
+}
+
+.badge {
+	padding: 0.2rem 0.6rem;
+	border-radius: 999px;
+	font-size: 0.7rem;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+.badge.regular {
+	background: var(--green-100);
+	color: var(--green-900);
+}
+
+.badge.emergência {
+	background: #ffe4e6;
+	color: #9f1239;
+}
+
+.badge.pontual {
+	background: #fef3c7;
+	color: #92400e;
+}

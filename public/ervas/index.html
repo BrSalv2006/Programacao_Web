@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>GREENHERB - Ervas Aromáticas</title>
+		<link rel="stylesheet" href="/shared/style.css">
+		<link rel="stylesheet" href="ervas.css">
+		<script src="/shared/auth.js"></script>
+		<script src="/shared/components.js" defer></script>
+	</head>
+	<body>
+		<app-header title="Gestão de Ervas"></app-header>
+		<main>
+			<section>
+				<h2>Nova Erva Aromática</h2>
+				<form id="ervaForm">
+					<div class="input-group"><label>Nome Comum:</label><input type="text" id="nome" placeholder="Ex: Manjericão" required></div>
+					<div class="input-group"><label>Nome Científico:</label><input type="text" id="cientifico" placeholder="Ex: Ocimum basilicum"></div>
+					<button type="submit">Registar Planta</button>
+				</form>
+				<div class="import-section">
+					<label for="csvFile" class="btn-sec">Importar via CSV</label>
+					<input type="file" id="csvFile" accept=".csv" class="hidden">
+				</div>
+			</section>
+			<section>
+				<h2>Catálogo de Plantas</h2>
+				<div id="listaErvas" class="ervas-grid"></div>
+			</section>
+		</main>
+		<app-footer></app-footer>
+		<script src="/shared/database.js" defer></script>
+		<script src="ervas.js" defer></script>
+		<script src="/shared/service-worker-register.js" defer></script>
+	</body>
+</html>

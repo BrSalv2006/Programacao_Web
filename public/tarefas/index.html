@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>GREENHERB - Tarefas</title>
+		<link rel="stylesheet" href="/shared/style.css">
+		<link rel="stylesheet" href="tarefas.css">
+		<script src="/shared/auth.js"></script>
+		<script src="/shared/components.js" defer></script>
+	</head>
+	<body>
+		<app-header title="Gestão de Tarefas"></app-header>
+		<main>
+			<section id="form-tarefas">
+				<h2>Registar Intervenção</h2>
+				<form id="tarefaForm">
+					<div class="input-group">
+						<label>Lote Alvo:</label>
+						<select id="loteId" required>
+							<option disabled selected>A carregar lotes...</option>
+						</select>
+					</div>
+					<div class="input-group">
+						<label>Tipo de Tarefa:</label>
+						<select id="tipoTarefa" required>
+							<option value="Rega">Rega</option>
+							<option value="Fertilização">Fertilização</option>
+							<option value="Monitorização">Monitorização</option>
+							<option value="Colheita">Colheita</option>
+						</select>
+					</div>
+					<div class="input-group">
+						<label>Observações / Dosagem:</label>
+						<textarea id="obsTarefa" rows="2" placeholder="Ex: Aplicado 50ml de fertilizante NPK"></textarea>
+					</div>
+					<button type="submit">Registar Tarefa</button>
+				</form>
+			</section>
+			<section>
+				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+					<h2 style="margin-bottom: 0;">Histórico Recente</h2>
+					<button id="btnExportarTarefas" class="btn-export">📥 Exportar para CSV</button>
+				</div>
+				<div id="listaTarefas" class="tarefas-grid"></div>
+			</section>
+		</main>
+		<app-footer></app-footer>
+		<script src="/shared/database.js" defer></script>
+		<script src="tarefas.js" defer></script>
+		<script src="/shared/service-worker-register.js" defer></script>
+	</body>
+</html>

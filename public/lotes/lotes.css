@@ -1,0 +1,175 @@
+#listaLotes {
+	display: grid;
+	gap: 1.25rem;
+	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.lote-card {
+	background: var(--white);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	padding: 1.5rem;
+	box-shadow: 0 4px 12px rgba(15, 47, 34, 0.05);
+	position: relative;
+	overflow: hidden;
+}
+
+.lote-card.estado-ativo {
+	border-left: 5px solid var(--green-600);
+}
+
+.lote-card.estado-concluido {
+	border-left: 5px solid #3b82f6;
+}
+
+.lote-card.estado-comprometido {
+	border-left: 5px solid #ef4444;
+}
+
+#listaLotes {
+	display: grid;
+	gap: 1.25rem;
+	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+}
+
+.lote-card {
+	background: var(--white);
+	border: 1px solid var(--border);
+	border-radius: var(--radius-sm);
+	padding: 1.5rem;
+	box-shadow: 0 4px 12px rgba(15, 47, 34, 0.05);
+	position: relative;
+	overflow: hidden;
+}
+
+.lote-card.estado-ativo {
+	border-left: 5px solid var(--green-600);
+}
+
+.lote-card.estado-concluido {
+	border-left: 5px solid #3b82f6;
+}
+
+.lote-card.estado-comprometido {
+	border-left: 5px solid #ef4444;
+}
+
+.lote-card h3 {
+	color: var(--green-950);
+	margin-top: 0;
+	margin-bottom: 0.8rem;
+	font-size: 1.2rem;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.lote-card p {
+	font-size: 0.9rem;
+	margin-bottom: 0.5rem;
+}
+
+.badge {
+	padding: 0.25rem 0.6rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+.badge-ativo {
+	background: var(--green-100);
+	color: var(--green-800);
+}
+
+.badge-concluido {
+	background: #dbeafe;
+	color: #1e3a8a;
+}
+
+.badge-comprometido {
+	background: #fee2e2;
+	color: #991b1b;
+}
+
+/* --- NOVOS ESTILOS PARA AS QUANTIDADES --- */
+.lote-qtd-box {
+	background: var(--green-50);
+	padding: 0.8rem;
+	border-radius: 8px;
+	margin: 0.8rem 0;
+	border: 1px dashed var(--border);
+}
+
+.lote-qtd-box p {
+	margin: 0;
+}
+
+.qtd-atual {
+	font-size: 1.1rem;
+	color: var(--green-800);
+}
+
+.qtd-inicial {
+	font-size: 0.8rem;
+	color: var(--text-muted);
+}
+
+.txt-perdas {
+	font-size: 0.85rem;
+	color: #ef4444;
+	margin-top: 0.2rem !important;
+}
+
+.produtividade-info {
+	background: #fffbeb;
+	color: #b45309;
+	padding: 0.5rem;
+	border-radius: 6px;
+	font-weight: 600;
+	text-align: center;
+}
+
+.lote-actions {
+	margin-top: 1rem;
+	padding-top: 1rem;
+	border-top: 1px dashed var(--border);
+	display: flex;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+}
+
+.lote-actions button {
+	flex: 1;
+	min-width: 120px;
+	/* Para garantir que os 3 botões não ficam esmagados */
+	padding: 0.4rem;
+	font-size: 0.8rem;
+	border: 1px solid var(--green-600);
+	background: transparent;
+	color: var(--green-700);
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.lote-actions button:hover {
+	background: var(--green-50);
+	transform: translateY(-1px);
+}
+
+.lote-actions .btn-perda {
+	border-color: #ef4444;
+	color: #ef4444;
+}
+
+.lote-actions .btn-perda:hover {
+	background: #fee2e2;
+}
+
+.lote-actions button:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+	background: transparent;
+	transform: none;
+}

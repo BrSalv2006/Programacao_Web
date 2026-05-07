@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>GREENHERB - Auditoria do Sistema</title>
+		<link rel="stylesheet" href="/shared/style.css">
+		<link rel="stylesheet" href="auditoria.css">
+		<script src="/shared/auth.js"></script>
+		<script src="/shared/components.js" defer></script>
+	</head>
+	<body>
+		<app-header title="Log de Auditoria e Rastreabilidade"></app-header>
+		<main>
+			<section>
+				<h2>Histórico de Ações do Sistema</h2>
+				<p class="audit-subtitle"> Página restrita. Visualização de todos os movimentos e alterações críticas realizadas na estufa. </p>
+				<div class="table-responsive">
+					<table class="audit-table">
+						<thead>
+							<tr>
+								<th>Data e Hora</th>
+								<th>Utilizador</th>
+								<th>Perfil</th>
+								<th>Ação Realizada</th>
+							</tr>
+						</thead>
+						<tbody id="logsTableBody">
+							<tr>
+								<td colspan="4" class="text-center">A carregar logs...</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</section>
+		</main>
+		<app-footer></app-footer>
+		<script src="/shared/database.js" defer></script>
+		<script src="auditoria.js" defer></script>
+		<script src="/shared/service-worker-register.js" defer></script>
+	</body>
+</html>

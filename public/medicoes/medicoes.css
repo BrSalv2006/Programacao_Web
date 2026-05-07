@@ -1,0 +1,67 @@
+.painel-alertas::before {
+	border-top: 5px solid #ef4444 !important;
+}
+
+.alertas-titulo {
+	color: #991b1b;
+}
+
+.inline-inputs {
+	display: flex;
+	gap: 10px;
+}
+
+.input-flex-1 {
+	flex: 1;
+}
+
+.alerta-vazio {
+	color: var(--text-muted);
+}
+
+.alerta-card {
+	padding: 1rem;
+	border-radius: 8px;
+	margin-bottom: 1rem;
+	border: 1px solid;
+}
+
+.alerta-critico {
+	background-color: #fee2e2;
+	border-color: #991b1b;
+	color: #991b1b;
+}
+
+.alerta-aviso {
+	background-color: #fef3c7;
+	border-color: #92400e;
+	color: #92400e;
+}
+
+.alerta-acoes {
+	margin-top: 10px;
+	font-size: 0.8rem;
+}
+
+.btn-ignorar {
+	padding: 4px 8px;
+	border-radius: 4px;
+	background: transparent;
+	cursor: pointer;
+	border: 1px solid;
+	transition: all 0.2s;
+}
+
+.alerta-critico .btn-ignorar {
+	border-color: #991b1b;
+	color: #991b1b;
+}
+
+.alerta-aviso .btn-ignorar {
+	border-color: #92400e;
+	color: #92400e;
+}
+
+.btn-ignorar:hover {
+	background: rgba(0, 0, 0, 0.05);
+}

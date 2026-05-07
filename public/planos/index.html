@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>GREENHERB - Planos de Cultivo</title>
+		<link rel="stylesheet" href="/shared/style.css">
+		<link rel="stylesheet" href="planos.css">
+		<script src="/shared/auth.js"></script>
+		<script src="/shared/components.js" defer></script>
+	</head>
+	<body>
+		<app-header title="Gestão de Planos de Cultivo"></app-header>
+		<main>
+			<section id="form-plano">
+				<h2>Configurar Novo Plano</h2>
+				<form id="planForm">
+					<div class="input-group">
+						<label for="ervaSelect">Escolha a Erva Aromática:</label>
+						<select id="ervaSelect" required>
+							<option value="" disabled selected>A carregar catálogo...</option>
+						</select>
+					</div>
+					<div class="input-group">
+						<label for="tipo">Tipo de Plano:</label>
+						<select id="tipo" required>
+							<option value="" disabled selected>Selecione um tipo...</option>
+							<option value="Regular">Regular</option>
+							<option value="Emergência">Emergência</option>
+							<option value="Pontual">Pontual</option>
+						</select>
+					</div>
+					<div id="secRegular" class="dynamic-sec hidden">
+						<div class="input-group">
+							<label>Intervalo de Temperatura (°C):</label>
+							<div class="inline-inputs">
+								<input type="number" id="tempMin" placeholder="Mínima">
+								<input type="number" id="tempMax" placeholder="Máxima">
+							</div>
+						</div>
+						<div class="input-group">
+							<label>Humidade (%):</label>
+							<div class="inline-inputs">
+								<input type="number" id="humMin" placeholder="Mínima">
+								<input type="number" id="humMax" placeholder="Máxima">
+							</div>
+						</div>
+						<div class="input-group">
+							<label>Luminosidade (Lux):</label>
+							<div class="inline-inputs">
+								<input type="number" id="lumMin" placeholder="Mínima">
+								<input type="number" id="lumMax" placeholder="Máxima">
+							</div>
+						</div>
+						<div class="input-group">
+							<label for="planoRega">Plano de Rega:</label>
+							<input type="text" id="planoRega" placeholder="Ex: 2x ao dia">
+						</div>
+						<div class="input-group">
+							<label for="planoFertilizacao">Plano de Fertilização:</label>
+							<input type="text" id="planoFertilizacao" placeholder="Ex: Semanal NPK">
+						</div>
+						<div class="input-group">
+							<label for="duracao">Duração Prevista (Dias):</label>
+							<input type="number" id="duracao">
+						</div>
+					</div>
+					<div id="secEmergencia" class="dynamic-sec hidden">
+						<div class="input-group">
+							<label for="tipoIntervencao">Tipo de Intervenção:</label>
+							<input type="text" id="tipoIntervencao" placeholder="Ex: Aplicação de pesticida">
+						</div>
+						<div class="input-group">
+							<label for="dosagem">Dosagem / Intensidade:</label>
+							<input type="text" id="dosagem" placeholder="Ex: 50ml/L">
+						</div>
+						<div class="input-group">
+							<label for="intervaloMin">Intervalo Mínimo (Horas):</label>
+							<input type="number" id="intervaloMin">
+						</div>
+					</div>
+					<div id="secPontual" class="dynamic-sec hidden">
+						<div class="input-group">
+							<label for="respTecnico">Responsável Técnico:</label>
+							<input type="text" id="respTecnico" placeholder="Nome do Responsável">
+						</div>
+						<div class="input-group">
+							<label for="motivo">Motivo da Intervenção:</label>
+							<textarea id="motivo" rows="3" placeholder="Justificação..."></textarea>
+						</div>
+					</div>
+					<button type="submit">Guardar Plano Localmente</button>
+				</form>
+			</section>
+			<section id="listagem">
+				<h2>Planos Registados</h2>
+				<div id="listaPlanos" class="grid-list">
+					<p>A carregar planos...</p>
+				</div>
+			</section>
+		</main>
+		<app-footer></app-footer>
+		<script src="/shared/database.js" defer></script>
+		<script src="planos.js" defer></script>
+		<script src="/shared/service-worker-register.js" defer></script>
+	</body>
+</html>
