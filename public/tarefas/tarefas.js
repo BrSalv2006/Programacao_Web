@@ -1,95 +1,158 @@
-initDB().then(() => {
-	carregarLotesNoSelect()
-	carregarTarefas()
-}).catch(erro => {
-	alert("Erro crítico ao ligar à base de dados.")
-})
+import { apiFetch } from '/js/storage/api.js'
 
-async function carregarLotesNoSelect() {
-	const select = document.getElementById("loteId")
-	try {
-		const lotes = await dbGetAll("lotes")
-		const lotesAtivos = lotes.filter(l => l.estado === "Ativo")
+document.addEventListener('DOMContentLoaded', () => {
+	const tbody = document.getElementById('table-body')
+	const modal = document.getElementById('modal')
+	const form = document.getElementById('modal-form')
+	const closeBtn = document.getElementById('close-modal')
+	const addBtn = document.getElementById('add-btn')
+	const modalAlert = document.getElementById('modal-alert')
+	const pageAlert = document.getElementById('page-alert')
 
-		select.innerHTML = lotesAtivos.length ? '<option value="" disabled selected>Selecione um lote ativo...</option>' : '<option disabled>Nenhum lote ativo.</option>'
-		lotesAtivos.forEach(l => {
-			select.innerHTML += `<option value="${l.id}">Lote L-${l.id} (${l.ervaAromatica})</option>`
+	const exportBtn = document.getElementById('export-btn')
+	if (exportBtn) {
+		exportBtn.addEventListener('click', () => {
+			window.open('/api/tarefas/exportar', '_blank')
 		})
-	} catch (error) {
-		console.error("Erro ao carregar lotes:", error)
 	}
-}
 
-document.getElementById("tarefaForm").addEventListener("submit", async function (e) {
-	e.preventDefault()
-	const tarefa = {
-		loteId: parseInt(document.getElementById("loteId").value),
-		tipo: document.getElementById("tipoTarefa").value,
-		observacoes: document.getElementById("obsTarefa").value,
-		dataExecucao: new Date().toLocaleString("pt-PT"),
-		sincronizado: false
+	async function loadTarefas() {
+		try {
+			const res = await apiFetch('/api/tarefas')
+			const data = await res.json()
+			if (data.success) {
+				renderTable(data.data)
+			}
+		} catch (e) {
+			tbody.innerHTML = `<tr><td colspan="5">Erro de rede.</td></tr>`
+		}
 	}
-	try {
-		await dbAdd("tarefas", tarefa)
-		await registarLog(`Registou uma tarefa de ${tarefa.tipo} no Lote #${tarefa.loteId}.`)
-		alert("Tarefa registada!")
-		document.getElementById("tarefaForm").reset()
-		carregarTarefas()
-	} catch (error) {
-		alert("Erro ao registar tarefa.")
-	}
-})
 
-async function carregarTarefas() {
-	const lista = document.getElementById("listaTarefas")
-	try {
-		const todasTarefas = await dbGetAll("tarefas")
-		const tarefas = todasTarefas.reverse()
-
-		lista.innerHTML = tarefas.length ? "" : "<p>Nenhuma tarefa registada.</p>"
-		tarefas.forEach(t => {
-			lista.innerHTML += `
-                <div class="tarefa-card">
-                    <h3 class="tarefa-header">${t.tipo} <span class="tarefa-lote">Lote #${t.loteId}</span></h3>
-                    <p class="tarefa-obs">${t.observacoes || "Sem observações."}</p>
-                    <small class="tarefa-data">Executado em: ${t.dataExecucao}</small>
-                </div>
-            `
-		})
-	} catch (error) {
-		console.error("Erro ao carregar tarefas:", error)
-	}
-}
-
-document.getElementById("btnExportarTarefas")?.addEventListener("click", async () => {
-	try {
-		const tarefas = await dbGetAll("tarefas")
-		if (tarefas.length === 0) {
-			alert("Não há tarefas para exportar.")
+	function renderTable(tarefas) {
+		if (!tarefas.length) {
+			tbody.innerHTML = `<tr><td colspan="5" class="text-center">Sem tarefas.</td></tr>`
 			return
 		}
 
-		let csvContent = "ID Tarefa,Lote Alvo,Tipo de Tarefa,Data de Execução,Observações\n"
+		tbody.innerHTML = tarefas.map(t => {
+			const dataFormatada = new Date(t.dataAgendada).toLocaleDateString('pt-PT', { hour: '2-digit', minute: '2-digit' })
+			const tipo = (t.tipo || '').charAt(0).toUpperCase() + (t.tipo || '').slice(1)
+			return `
+                        <tr>
+                            <td class="text-bold color-dark">${tipo}</td>
+                            <td class="text-xs color-muted">${t.loteId?._id || 'N/A'}</td>
+                            <td>${dataFormatada}</td>
+                            <td><span class="alert-badge badge-${t.estado === 'Pendente' ? 'Aviso' : (t.estado === 'Expirada' ? 'Critico' : 'Informativo')}">${t.estado}</span></td>
+                            <td>
+                                ${t.estado === 'Pendente' ?
+					`<button class="action-btn exec-btn text-bold" data-id="${t._id}">Marcar como Feito</button>` :
+					`<span class="text-xs color-muted">${t.estado === 'Expirada' ? 'Expirada' : 'Concluída'}</span>`
+				}
+                            </td>
+                        </tr>
+                    `}).join('')
 
-		tarefas.forEach(t => {
-			const obsSeguras = t.observacoes ? `"${t.observacoes.replace(/"/g, '""')}"` : "Sem observações"
-
-			csvContent += `${t.id},${t.loteId},${t.tipo},${t.dataExecucao},${obsSeguras}\n`
-		})
-
-		const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' })
-		const url = URL.createObjectURL(blob)
-
-		const link = document.createElement("a")
-		link.setAttribute("href", url)
-		link.setAttribute("download", `Relatorio_Tarefas_GREENHERB_${new Date().toISOString().split('T')[0]}.csv`)
-		document.body.appendChild(link)
-		link.click()
-		document.body.removeChild(link)
-
-		await registarLog("Exportou o histórico de Tarefas para formato CSV.")
-	} catch (e) {
-		console.error("Erro na exportação das tarefas", e)
-		alert("Erro ao exportar dados.")
+		document.querySelectorAll('.exec-btn').forEach(btn => btn.addEventListener('click', async (e) => {
+			const id = e.target.dataset.id
+			try {
+				const res = await apiFetch(`/api/tarefas/${id}`, {
+					method: 'PATCH',
+					body: JSON.stringify({ estado: 'Executada', dataExecucao: new Date() })
+				})
+				if (res.ok) {
+					loadTarefas()
+				} else {
+					const errorData = await res.json()
+					if (pageAlert) {
+						pageAlert.textContent = errorData.message || 'Erro ao executar tarefa.'
+						pageAlert.className = 'alert alert-error'
+						pageAlert.style.display = 'block'
+					} else {
+						alert(errorData.message || 'Erro ao executar tarefa.')
+					}
+				}
+			} catch (err) {
+				console.error(err)
+				if (pageAlert) {
+					pageAlert.textContent = 'Erro ao contactar servidor.'
+					pageAlert.className = 'alert alert-error'
+					pageAlert.style.display = 'block'
+				} else {
+					alert('Erro ao contactar servidor.')
+				}
+			}
+		}))
 	}
+
+	async function loadLotesParaBase() {
+		try {
+			const res = await apiFetch('/api/lotes')
+			const data = await res.json()
+			if (data.success) {
+				const ativos = data.data.filter(l => l.estado === 'ativo')
+				document.getElementById('loteId').innerHTML = '<option value="">Selecione o Lote</option>' +
+					ativos.map(l => `<option value="${l._id}">Lote ${l.ervaId?.nome || 'Desconhecido'} (${l.modo})</option>`).join('')
+			}
+		} catch (e) { }
+	}
+
+	if (addBtn) {
+		addBtn.addEventListener('click', () => {
+			loadLotesParaBase()
+			modal.classList.add('open')
+		})
+	}
+
+	if (closeBtn) {
+		closeBtn.addEventListener('click', () => {
+			modal.classList.remove('open')
+			form.reset()
+			if (modalAlert) modalAlert.style.display = 'none'
+		})
+	}
+
+	if (form) {
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault()
+			const payload = {
+				loteId: document.getElementById('loteId').value,
+				tipo: (document.getElementById('tipo').value).toLowerCase(),
+				dataAgendada: document.getElementById('dataAgendada').value,
+				descricao: document.getElementById('descricao').value
+			}
+
+			try {
+				const response = await apiFetch('/api/tarefas', {
+					method: 'POST',
+					body: JSON.stringify(payload)
+				})
+				const data = await response.json()
+
+				if (response.ok && data.success) {
+					modal.classList.remove('open')
+					form.reset()
+					if (pageAlert) {
+						pageAlert.textContent = 'Tarefa criada com sucesso!'
+						pageAlert.className = 'alert alert-success'
+						pageAlert.style.display = 'block'
+					}
+					loadTarefas()
+				} else {
+					if (modalAlert) {
+						modalAlert.textContent = data.message || 'Erro ao criar tarefa.'
+						modalAlert.className = 'alert alert-error'
+						modalAlert.style.display = 'block'
+					}
+				}
+			} catch (err) {
+				if (modalAlert) {
+					modalAlert.textContent = 'Erro de comunicação.'
+					modalAlert.className = 'alert alert-error'
+					modalAlert.style.display = 'block'
+				}
+			}
+		})
+	}
+
+	loadTarefas()
 })

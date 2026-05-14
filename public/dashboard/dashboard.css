@@ -1,0 +1,86 @@
+.kpi-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	gap: 1.5rem;
+	margin-bottom: 2.5rem;
+}
+
+.kpi-card {
+	display: flex;
+	align-items: center;
+	gap: 1.25rem;
+	padding: 1.5rem;
+}
+
+.kpi-icon {
+	width: 54px;
+	height: 54px;
+	border-radius: var(--radius-sm);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.bg-info {
+	background: var(--info-bg);
+}
+
+.bg-warning {
+	background: var(--warning-bg);
+}
+
+.bg-danger {
+	background: var(--danger-bg);
+}
+
+.kpi-info {
+	display: flex;
+	flex-direction: column;
+	gap: 0.25rem;
+}
+
+.alert-list {
+	list-style: none;
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+}
+
+.alert-item {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding-bottom: 1rem;
+	border-bottom: 1px solid var(--border);
+}
+
+.alert-item:last-child {
+	border-bottom: none;
+	padding-bottom: 0;
+}
+
+.alert-badge {
+	padding: 0.25rem 0.75rem;
+	border-radius: 50px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+}
+
+.badge-Aviso {
+	background: var(--warning-bg);
+	color: var(--warning-text);
+	border: 1px solid var(--warning-border);
+}
+
+.badge-Crítico {
+	background: var(--danger-bg);
+	color: var(--danger-text);
+	border: 1px solid var(--danger-border);
+}
+
+.badge-Informativo {
+	background: var(--info-bg);
+	color: var(--info-text);
+	border: 1px solid var(--info-border);
+}

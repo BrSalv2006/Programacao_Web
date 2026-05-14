@@ -1,0 +1,620 @@
+openapi: 3.2.0
+info:
+  title: GREENHERB API
+  description: Plataforma Web de Gestão Inteligente de uma Estufa
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api
+
+tags:
+  - name: Auth
+  - name: System
+  - name: Ervas Aromáticas
+  - name: Planos de Cultivo
+  - name: Lotes de Cultivo
+  - name: Tarefas Operacionais
+  - name: Monitorização
+
+paths:
+  /health:
+    get:
+      tags:
+        - System
+      responses:
+        "200":
+          description: OK
+
+  /auth/register:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRegister"
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+        "409":
+          description: Conflict
+
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+
+  /auth/logout:
+    post:
+      tags:
+        - Auth
+      responses:
+        "200":
+          description: OK
+
+  /ervas:
+    get:
+      tags:
+        - Ervas Aromáticas
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Ervas Aromáticas
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErvaAromatica"
+      responses:
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /ervas/importar:
+    post:
+      tags:
+        - Ervas Aromáticas
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Ficheiro CSV com Ervas a importar
+      responses:
+        "201":
+          description: Created
+        "207":
+          description: Multi-Status (Erros parciais)
+        "400":
+          description: Bad Request
+
+  /ervas/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Ervas Aromáticas
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+    patch:
+      tags:
+        - Ervas Aromáticas
+      security:
+        - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ErvaAromatica"
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+    delete:
+      tags:
+        - Ervas Aromáticas
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK - Soft Delete
+        "404":
+          description: Not Found
+
+  /ervas/{id}/reativar:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Ervas Aromáticas
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+
+  /planos:
+    get:
+      tags:
+        - Planos de Cultivo
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Planos de Cultivo
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlanoCultivo"
+      responses:
+        "201":
+          description: Created
+        "401":
+          description: Unauthorized
+        "403":
+          description: Forbidden
+
+  /planos/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Planos de Cultivo
+      security:
+        - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlanoCultivo"
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+
+  /lotes:
+    get:
+      tags:
+        - Lotes de Cultivo
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Lotes de Cultivo
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoteCultivo"
+      responses:
+        "201":
+          description: Created
+
+  /lotes/exportar:
+    get:
+      tags:
+        - Lotes de Cultivo
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+
+  /lotes/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Lotes de Cultivo
+      security:
+        - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoteCultivo"
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+
+  /tarefas:
+    get:
+      tags:
+        - Tarefas Operacionais
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: loteId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Tarefas Operacionais
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Tarefa"
+      responses:
+        "201":
+          description: Created
+
+  /tarefas/exportar:
+    get:
+      tags:
+        - Tarefas Operacionais
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+
+  /tarefas/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Tarefas Operacionais
+      security:
+        - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Tarefa"
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+
+  /medicoes:
+    get:
+      tags:
+        - Monitorização
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: loteId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+    post:
+      tags:
+        - Monitorização
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MedicaoAmbiental"
+      responses:
+        "201":
+          description: Created
+
+  /medicoes/exportar:
+    get:
+      tags:
+        - Monitorização
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+
+  /medicoes/alertas:
+    get:
+      tags:
+        - Monitorização
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: OK
+
+  /medicoes/alertas/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Monitorização
+      security:
+        - cookieAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                estado:
+                  type: string
+                justificacao:
+                  type: string
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access
+
+  schemas:
+    UserRegister:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    ErvaAromatica:
+      type: object
+      required: [nome, nomeCientifico, variedade, familia, cicloDiasFim]
+      properties:
+        nome:
+          type: string
+        nomeCientifico:
+          type: string
+        variedade:
+          type: string
+        familia:
+          type: string
+        cicloDiasFim:
+          type: number
+        descricao:
+          type: string
+        ativo:
+          type: boolean
+
+    PlanoCultivo:
+      type: object
+      required: [tipo]
+      properties:
+        tipo:
+          type: string
+          enum: [Regular, Emergência, Pontual]
+        ervaId:
+          type: string
+        condicoesIdeais:
+          type: object
+          properties:
+            temperaturaMin:
+              type: number
+            temperaturaMax:
+              type: number
+            humidadeMin:
+              type: number
+            humidadeMax:
+              type: number
+            luminosidadeMin:
+              type: number
+            luminosidadeMax:
+              type: number
+        intervencoes:
+          type: array
+          items:
+            type: object
+            properties:
+              tipo:
+                type: string
+              frequenciaHoras:
+                type: number
+              dosagem:
+                type: string
+        autorizadoPor:
+          type: string
+
+    LoteCultivo:
+      type: object
+      required: [ervaId, planoId, quantidadeInicial]
+      properties:
+        ervaId:
+          type: string
+        planoId:
+          type: string
+        estado:
+          type: string
+          enum: [Ativo, Concluído, Comprometido]
+        modo:
+          type: string
+          enum: [Manual, Automático]
+        dataInicio:
+          type: string
+          format: date-time
+        dataFimReal:
+          type: string
+          format: date-time
+        quantidadeInicial:
+          type: number
+        perdas:
+          type: number
+        loteOrigemId:
+          type: string
+
+    Tarefa:
+      type: object
+      required: [loteId, tipo, dataAgendada]
+      properties:
+        loteId:
+          type: string
+        tipo:
+          type: string
+          enum: [Rega, Fertilização, Colheita, Monitorização, Outro]
+        estado:
+          type: string
+          enum: [Pendente, Executada, Expirada]
+        dataAgendada:
+          type: string
+          format: date-time
+        dataExecucao:
+          type: string
+          format: date-time
+        responsavelId:
+          type: string
+
+    MedicaoAmbiental:
+      type: object
+      required: [loteId]
+      properties:
+        loteId:
+          type: string
+        temperatura:
+          type: number
+        humidade:
+          type: number
+        luminosidade:
+          type: number
+        dataHora:
+          type: string
+          format: date-time
+
+    Alerta:
+      type: object
+      properties:
+        loteId:
+          type: string
+        medicaoId:
+          type: string
+        nivel:
+          type: string
+          enum: [Informativo, Aviso, Crítico]
+        tipo:
+          type: string
+        estado:
+          type: string
+          enum: [Pendente, Resolvido, Ignorado]
+        justificacao:
+          type: string

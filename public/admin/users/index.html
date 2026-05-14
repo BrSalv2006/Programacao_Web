@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Gestão de Utilizadores - GREENHERB</title>
+		<link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="/css/global.css">
+	</head>
+	<body class="dashboard-layout">
+		<aside class="sidebar card"></aside>
+		<main class="main-content">
+			<header class="topbar">
+				<div>
+					<h1 class="text-xl text-black color-dark">Painel de Utilizadores</h1>
+					<p class="text-sm color-muted">Aprove e defina os perfis de acesso da equipa.</p>
+				</div>
+			</header>
+			<div id="alert" class="alert"></div>
+			<div class="table-container">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Nome</th>
+							<th>E-mail</th>
+							<th>Data de Registo</th>
+							<th>Cargo (Role)</th>
+						</tr>
+					</thead>
+					<tbody id="table-body">
+						<tr>
+							<td colspan="4" class="color-muted text-center">A carregar dados...</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</main>
+		<script type="module" src="/js/service-worker-register.js"></script>
+		<script type="module" src="/js/components/sidebar.js"></script>
+		<script type="module" src="./users.js"></script>
+	</body>
+</html>

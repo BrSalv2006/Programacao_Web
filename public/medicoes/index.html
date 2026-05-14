@@ -3,49 +3,44 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>GREENHERB - Medições</title>
-		<link rel="stylesheet" href="/shared/style.css">
-		<link rel="stylesheet" href="medicoes.css">
-		<script src="/shared/auth.js"></script>
-		<script src="/shared/components.js" defer></script>
+		<title>Medições Ambientais - GREENHERB</title>
+		<link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="/css/global.css">
 	</head>
-	<body>
-		<app-header title="Gestão de Medições"></app-header>
-		<main>
-			<section class="painel-alertas" id="painel-alertas">
-				<h2 class="alertas-titulo">🚨 Alertas Ativos</h2>
-				<div id="listaAlertas">A carregar alertas...</div>
-			</section>
-			<section id="form-medicao">
-				<h2>Registar Leitura Ambiental</h2>
-				<form id="medicaoForm">
+	<body class="dashboard-layout">
+		<aside class="sidebar card"></aside>
+		<main class="main-content">
+			<header class="topbar">
+				<div>
+					<h1 class="text-xl text-black color-dark">Registo de Sensores (Simulador)</h1>
+					<p class="text-sm color-muted">Submeta leituras para ativar a automação e testar as regras.</p>
+				</div>
+				<div class="topbar-actions">
+					<button id="export-btn" class="btn btn-secondary">Exportar CSV</button>
+				</div>
+			</header>
+			<div class="card p-8 max-w-600">
+				<form id="sensor-form">
+					<div id="sensor-alert" class="alert"></div>
 					<div class="input-group">
-						<label>Lote Alvo:</label>
-						<select id="loteIdMed" required>
-							<option disabled selected>A carregar lotes...</option>
+						<label>Lote Alvo</label>
+						<select id="loteId" class="form-control" required>
+							<option value="">A carregar...</option>
 						</select>
 					</div>
-					<div class="input-group inline-inputs">
-						<div class="input-flex-1">
-							<label>Temperatura (°C):</label>
-							<input type="number" step="0.1" id="valTemp" required>
-						</div>
-						<div class="input-flex-1">
-							<label>Humidade (%):</label>
-							<input type="number" id="valHum" required>
-						</div>
-						<div class="input-flex-1">
-							<label>Luminosidade (Lux):</label>
-							<input type="number" id="valLum" required>
-						</div>
+					<div class="grid-2">
+						<div class="input-group"><label>Temperatura (°C)</label><input type="number" step="0.1" id="temperatura" class="form-control" required></div>
+						<div class="input-group"><label>Humidade (%)</label><input type="number" step="0.1" id="humidade" class="form-control" required></div>
+						<div class="input-group"><label>Luminosidade (Lux)</label><input type="number" id="luminosidade" class="form-control" required></div>
 					</div>
-					<button type="submit">Gravar Medição e Verificar Regras</button>
+					<div class="form-actions mt-4">
+						<button type="submit" class="btn btn-primary">Submeter Leitura</button>
+					</div>
 				</form>
-			</section>
+			</div>
 		</main>
-		<app-footer></app-footer>
-		<script src="/shared/database.js" defer></script>
-		<script src="medicoes.js" defer></script>
-		<script src="/shared/service-worker-register.js" defer></script>
+		<script type="module" src="/js/service-worker-register.js"></script>
+		<script type="module" src="/js/components/sidebar.js"></script>
+		<script type="module" src="medicoes.js"></script>
 	</body>
 </html>

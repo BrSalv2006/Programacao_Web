@@ -3,35 +3,103 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>GREENHERB - Ervas Aromáticas</title>
-		<link rel="stylesheet" href="/shared/style.css">
-		<link rel="stylesheet" href="ervas.css">
-		<script src="/shared/auth.js"></script>
-		<script src="/shared/components.js" defer></script>
+		<title>Ervas Aromáticas - GREENHERB</title>
+		<link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="/css/global.css">
 	</head>
-	<body>
-		<app-header title="Gestão de Ervas"></app-header>
-		<main>
-			<section>
-				<h2>Nova Erva Aromática</h2>
-				<form id="ervaForm">
-					<div class="input-group"><label>Nome Comum:</label><input type="text" id="nome" placeholder="Ex: Manjericão" required></div>
-					<div class="input-group"><label>Nome Científico:</label><input type="text" id="cientifico" placeholder="Ex: Ocimum basilicum"></div>
-					<button type="submit">Registar Planta</button>
-				</form>
-				<div class="import-section">
-					<label for="csvFile" class="btn-sec">Importar via CSV</label>
-					<input type="file" id="csvFile" accept=".csv" class="hidden">
+	<body class="dashboard-layout">
+		<aside class="sidebar card"></aside>
+		<main class="main-content">
+			<header class="topbar">
+				<div>
+					<h1 class="text-xl text-black color-dark">Ervas Aromáticas</h1>
+					<p class="text-sm color-muted">Catálogo de espécies cultivadas na estufa.</p>
 				</div>
-			</section>
-			<section>
-				<h2>Catálogo de Plantas</h2>
-				<div id="listaErvas" class="ervas-grid"></div>
-			</section>
+				<div class="topbar-actions">
+					<button id="import-btn" class="btn btn-secondary">Importar CSV</button>
+					<button id="add-btn" class="btn btn-primary">+ Nova Erva</button>
+				</div>
+			</header>
+			<div id="page-alert" class="alert mb-4"></div>
+			<div class="table-container">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Nome Comum</th>
+							<th>Nome Científico</th>
+							<th>Variedade</th>
+							<th>Família</th>
+							<th>Ciclo (Dias)</th>
+							<th>Estado</th>
+							<th>Ações</th>
+						</tr>
+					</thead>
+					<tbody id="table-body">
+						<tr>
+							<td colspan="7" class="color-muted text-center">A carregar dados...</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
 		</main>
-		<app-footer></app-footer>
-		<script src="/shared/database.js" defer></script>
-		<script src="ervas.js" defer></script>
-		<script src="/shared/service-worker-register.js" defer></script>
+		<div id="modal" class="modal">
+			<div class="card modal-card">
+				<div class="modal-header">
+					<h2 id="modal-title" class="text-lg text-bold color-dark">Nova Erva Aromática</h2>
+					<button type="button" id="close-modal" class="close-btn">&times;</button>
+				</div>
+				<form id="modal-form">
+					<div id="modal-alert" class="alert"></div>
+					<div class="grid-2">
+						<div class="input-group"><label for="nome">Nome Comum</label><input type="text" id="nome" name="nome" class="form-control" required></div>
+						<div class="input-group"><label for="nomeCientifico">Nome Científico</label><input type="text" id="nomeCientifico" name="nomeCientifico" class="form-control" required></div>
+						<div class="input-group"><label for="variedade">Variedade</label><input type="text" id="variedade" name="variedade" class="form-control" required></div>
+						<div class="input-group"><label for="familia">Família Botânica</label><input type="text" id="familia" name="familia" class="form-control" required></div>
+						<div class="input-group"><label for="cicloDiasFim">Ciclo Estimado (Dias)</label><input type="number" id="cicloDiasFim" class="form-control" required min="1"></div>
+					</div>
+					<div class="input-group"><label for="descricao">Descrição</label><textarea id="descricao" name="descricao" class="form-control"></textarea></div>
+					<div class="form-actions mt-6"><button type="submit" id="submit-btn" class="btn btn-primary w-full">Guardar</button></div>
+				</form>
+			</div>
+		</div>
+		<div id="import-modal" class="modal">
+			<div class="card modal-card">
+				<div class="modal-header">
+					<h2 class="text-lg text-bold color-dark">Importar Ervas via CSV</h2>
+					<button type="button" id="close-import" class="close-btn">&times;</button>
+				</div>
+				<form id="import-form">
+					<p class="text-sm color-muted mb-4">O ficheiro CSV deve conter os cabeçalhos: <code>nome,nomeCientifico,variedade,familia,cicloDiasFim,descricao</code></p>
+					<div id="import-alert" class="alert"></div>
+					<div class="input-group">
+						<label for="csv-file">Ficheiro CSV</label>
+						<input type="file" id="csv-file" accept=".csv" class="form-control" required>
+					</div>
+					<div class="form-actions mt-6"><button type="submit" id="submit-import-btn" class="btn btn-primary w-full">Carregar Ficheiro</button></div>
+				</form>
+			</div>
+		</div>
+		<div id="confirm-modal" class="modal">
+			<div class="card modal-card max-w-400 text-center">
+				<h2 class="text-lg text-bold color-dark mb-4">Confirmar Ação</h2>
+				<p id="confirm-message" class="text-base color-muted mb-4"></p>
+				<div class="grid-2">
+					<button type="button" id="confirm-yes" class="btn btn-primary w-full">Confirmar</button>
+					<button type="button" id="confirm-no" class="btn btn-secondary w-full">Cancelar</button>
+				</div>
+			</div>
+		</div>
+		<div id="desc-modal" class="modal">
+			<div class="card modal-card max-w-400">
+				<div class="modal-header">
+					<h2 class="text-lg text-bold color-dark">Descrição da Erva</h2>
+					<button type="button" id="close-desc-modal" class="close-btn">&times;</button>
+				</div>
+				<p id="desc-text" class="text-base color-muted mt-4 whitespace-pre-wrap"></p>
+			</div>
+		</div>
+		<script type="module" src="/js/service-worker-register.js"></script>
+		<script type="module" src="/js/components/sidebar.js"></script>
+		<script type="module" src="./ervas.js"></script>
 	</body>
 </html>

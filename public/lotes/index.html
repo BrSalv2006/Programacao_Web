@@ -3,48 +3,182 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<title>GREENHERB - Gestão de Lotes</title>
-		<link rel="stylesheet" href="/shared/style.css">
-		<link rel="stylesheet" href="lotes.css">
-		<script src="/shared/auth.js"></script>
-		<script src="/shared/components.js" defer></script>
+		<title>Lotes de Cultivo - GREENHERB</title>
+		<link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="/css/global.css">
 	</head>
-	<body>
-		<app-header title="Gestão de Lotes"></app-header>
-		<main>
-			<section id="form-lote">
-				<h2>Registo de Novo Lote</h2>
-				<form id="loteForm">
+	<body class="dashboard-layout">
+		<aside class="sidebar card"></aside>
+		<main class="main-content">
+			<header class="topbar">
+				<div>
+					<h1 class="text-xl text-black color-dark">Lotes de Cultivo</h1>
+					<p class="text-sm color-muted">Gestão e divisão de lotes da estufa.</p>
+				</div>
+				<div class="topbar-actions">
+					<button id="export-btn" class="btn btn-secondary">Exportar CSV</button>
+					<button id="add-btn" class="btn btn-primary">+ Novo Lote</button>
+				</div>
+			</header>
+			<div id="page-alert" class="alert mb-4"></div>
+			<div class="table-container">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Nome / Código</th>
+							<th>Erva Cultivada</th>
+							<th>Plano Base / Atual</th>
+							<th>Histórico de Planos</th>
+							<th>Qtd Atual</th>
+							<th>Progresso</th>
+							<th>Estado</th>
+							<th>Ações</th>
+						</tr>
+					</thead>
+					<tbody id="table-body">
+						<tr>
+							<td colspan="8" class="color-muted text-center">A carregar dados...</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</main>
+		<div id="modal" class="modal">
+			<div class="card modal-card max-w-500">
+				<div class="modal-header">
+					<h2 id="modal-title" class="text-lg text-bold color-dark">Novo Lote</h2>
+					<button type="button" id="close-modal" class="close-btn">&times;</button>
+				</div>
+				<form id="modal-form">
+					<div id="modal-alert" class="alert"></div>
 					<div class="input-group">
-						<label for="planoAssociado">Plano de Cultivo Associado:</label>
-						<select id="planoAssociado" required>
-							<option value="" disabled selected>A carregar planos...</option>
+						<label for="nomeLote">Nome/Código do Lote</label>
+						<input type="text" id="nomeLote" class="form-control" required placeholder="Ex: Lote Alfa 1">
+					</div>
+					<div class="input-group">
+						<label for="ervaId">Erva Aromática</label>
+						<select id="ervaId" class="form-control" required>
+							<option value="">A carregar...</option>
 						</select>
 					</div>
 					<div class="input-group">
-						<label for="dataInicio">Data de Início Real:</label>
-						<input type="date" id="dataInicio" required>
+						<label for="planoId">Plano de Cultivo</label>
+						<select id="planoId" class="form-control" required>
+							<option value="">A carregar...</option>
+						</select>
+					</div>
+					<div class="grid-2">
+						<div class="input-group"><label>Qtd. Inicial</label><input type="number" id="quantidadeInicial" class="form-control" required min="1"></div>
+						<div class="input-group">
+							<label>Modo de Gestão</label>
+							<select id="modo" class="form-control" required>
+								<option value="Manual">Manual</option>
+								<option value="Automático">Automático</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-actions mt-4"><button type="submit" id="submit-btn" class="btn btn-primary w-full">Guardar Lote</button></div>
+				</form>
+			</div>
+		</div>
+		<div id="dividir-modal" class="modal">
+			<div class="card modal-card max-w-400">
+				<div class="modal-header">
+					<h2 class="text-lg text-bold color-dark">Dividir Lote</h2>
+					<button type="button" id="close-dividir" class="close-btn">&times;</button>
+				</div>
+				<form id="dividir-form">
+					<div id="dividir-alert" class="alert"></div>
+					<p class="text-sm color-muted mb-4">Vai extrair parte da quantidade para um novo lote independente.</p>
+					<div class="input-group">
+						<label>Nome do Novo Lote</label>
+						<input type="text" id="novoNomeLote" class="form-control" required placeholder="Ex: Lote Alfa 1 (Divisão)">
 					</div>
 					<div class="input-group">
-						<label for="quantidadeInicial">Quantidade/Área Inicial (ex: 500 vasos ou 50m²):</label>
-						<input type="text" id="quantidadeInicial" required placeholder="Ex: 500 vasos">
+						<label>Quantidade a Retirar</label>
+						<input type="number" id="quantidadeRetirada" class="form-control" required min="1">
 					</div>
-					<button type="submit">Iniciar Lote</button>
+					<div class="form-actions"><button type="submit" class="btn btn-primary w-full">Dividir</button></div>
 				</form>
-			</section>
-			<section id="listagem">
-				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-					<h2 style="margin-bottom: 0;">Monitorização de Lotes</h2>
-					<button id="btnExportarLotes" class="btn-export">📥 Exportar para CSV</button>
+			</div>
+		</div>
+		<div id="concluir-modal" class="modal">
+			<div class="card modal-card max-w-400">
+				<div class="modal-header">
+					<h2 class="text-lg text-bold color-dark">Concluir Lote</h2>
+					<button type="button" id="close-concluir" class="close-btn">&times;</button>
 				</div>
-				<div id="listaLotes">
-					<p>Ainda não existem lotes registados.</p>
+				<form id="concluir-form">
+					<div id="concluir-alert" class="alert"></div>
+					<p class="text-sm color-muted mb-4" id="concluir-help-text">Insira a quantidade final colhida para o encerramento deste lote.</p>
+					<div class="input-group">
+						<label>Quantidade Colhida (Unidades/Plantas)</label>
+						<input type="number" id="quantidadeColhidaFinal" class="form-control" required min="0" value="0">
+					</div>
+					<div class="form-actions"><button type="submit" class="btn btn-primary w-full">Finalizar Lote</button></div>
+				</form>
+			</div>
+		</div>
+		<div id="alterar-plano-modal" class="modal">
+			<div class="card modal-card max-w-400">
+				<div class="modal-header">
+					<h2 class="text-lg text-bold color-dark">Alterar Plano de Cultivo</h2>
+					<button type="button" id="close-alterar-plano" class="close-btn">&times;</button>
 				</div>
-			</section>
-		</main>
-		<app-footer></app-footer>
-		<script src="/shared/database.js" defer></script>
-		<script src="lotes.js" defer></script>
-		<script src="/shared/service-worker-register.js" defer></script>
+				<form id="alterar-plano-form">
+					<div id="alterar-plano-alert" class="alert"></div>
+					<p class="text-sm color-muted mb-4">Mude o plano formativo para este lote (ex. para um plano de emergência).</p>
+					<div class="input-group">
+						<label for="novoPlanoId">Novo Plano</label>
+						<select id="novoPlanoId" class="form-control" required>
+							<option value="">A carregar...</option>
+						</select>
+					</div>
+					<div class="form-actions"><button type="submit" class="btn btn-primary w-full">Alterar</button></div>
+				</form>
+			</div>
+		</div>
+		<div id="historico-modal" class="modal">
+			<div class="card modal-card max-w-500">
+				<div class="modal-header">
+					<h2 class="text-lg text-bold color-dark">Histórico de Planos</h2>
+					<button type="button" id="close-historico" class="close-btn">&times;</button>
+				</div>
+				<div id="historico-content" class="mt-4"></div>
+			</div>
+		</div>
+		<div id="perdas-modal" class="modal">
+			<div class="card modal-card max-w-400">
+				<div class="modal-header">
+					<h2 class="text-lg text-bold color-dark">Registar Perdas</h2>
+					<button type="button" id="close-perdas" class="close-btn">&times;</button>
+				</div>
+				<form id="perdas-form">
+					<div id="perdas-alert" class="alert"></div>
+					<p class="text-sm color-muted mb-4">Registe mortalidade ou descartes ocorridos durante o ciclo, em tempo real.</p>
+					<div class="input-group">
+						<label>Quantidade a deduzir</label>
+						<input type="number" id="qtdPerdida" class="form-control" required min="1">
+					</div>
+					<div class="form-actions"><button type="submit" class='btn btn-primary w-full border-warning'>Registar</button></div>
+				</form>
+			</div>
+		</div>
+		<div id="comprometer-modal" class="modal">
+			<div class="card modal-card max-w-400">
+				<div class="modal-header">
+					<h2 class="text-lg text-bold color-danger">Comprometer Lote</h2>
+					<button type="button" id="close-comprometer" class="close-btn">&times;</button>
+				</div>
+				<form id="comprometer-form">
+					<div id="comprometer-alert" class="alert"></div>
+					<p class="text-sm color-muted mb-4">Selecione esta opção caso o lote tenha sido fatalmente afetado. O lote será encerrado e registado como perda total.</p>
+					<div class="form-actions"><button type="submit" class="btn btn-primary w-full border-danger color-danger">Declarar Comprometido</button></div>
+				</form>
+			</div>
+		</div>
+		<script type="module" src="/js/service-worker-register.js"></script>
+		<script type="module" src="/js/components/sidebar.js"></script>
+		<script type="module" src="./lotes.js"></script>
 	</body>
 </html>

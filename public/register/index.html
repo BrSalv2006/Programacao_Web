@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Criar Conta - GREENHERB</title>
+		<link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="/css/global.css">
+		<link rel="stylesheet" href="./register.css">
+	</head>
+	<body>
+		<main class="auth-container">
+			<div class="card auth-card register-card">
+				<div class="brand-header">
+					<img src="/img/logo.png" alt="GREENHERB Logo" class="brand-logo" onerror="this.style.display='none'">
+					<h1 class="text-xl text-black color-dark">GREENHERB</h1>
+					<p class="text-sm color-muted">Gestão Inteligente de Estufa</p>
+				</div>
+				<form id="register-form" novalidate>
+					<div class="input-group">
+						<label for="name">Nome Completo</label>
+						<input type="text" id="name" name="name" class="form-control" required autocomplete="name" placeholder="Ex: João Silva">
+					</div>
+					<div class="input-group">
+						<label for="email">E-mail</label>
+						<input type="email" id="email" name="email" class="form-control" required autocomplete="email" placeholder="tecnico@greenherb.pt">
+					</div>
+					<div class="input-group">
+						<label for="password">Palavra-passe</label>
+						<div class="password-wrapper">
+							<input type="password" id="password" name="password" class="form-control" autocomplete="new-password" required minlength="8" placeholder="Mínimo 8 caracteres">
+							<button type="button" class="toggle-password-btn" title="Mostrar/Ocultar palavra-passe">
+								<img src="/img/eyeOn.svg" width="20" height="20" alt="Mostrar/Ocultar">
+							</button>
+						</div>
+					</div>
+					<div class="input-group">
+						<label for="confirm-password">Confirmar Palavra-passe</label>
+						<div class="password-wrapper">
+							<input type="password" id="confirm-password" name="confirm-password" class="form-control" autocomplete="new-password" required placeholder="Repita a palavra-passe">
+							<button type="button" class="toggle-password-btn" title="Mostrar/Ocultar palavra-passe">
+								<img src="/img/eyeOn.svg" width="20" height="20" alt="Mostrar/Ocultar">
+							</button>
+						</div>
+					</div>
+					<ul id="password-reqs" class="password-reqs">
+						<li id="req-length" class="invalid">Mínimo de 8 caracteres</li>
+						<li id="req-case" class="invalid">Letra maiúscula e minúscula</li>
+						<li id="req-number" class="invalid">Pelo menos um número</li>
+						<li id="req-symbol" class="invalid">Pelo menos um símbolo (@$!%*?&)</li>
+					</ul>
+					<div id="alert" class="alert"></div>
+					<div class="form-actions">
+						<button type="submit" id="submit-btn" class="btn btn-primary w-full">Criar Conta</button>
+						<button type="button" id="login-btn" class="btn btn-secondary w-full">Iniciar Sessão</button>
+					</div>
+				</form>
+			</div>
+		</main>
+		<script type="module" src="/js/service-worker-register.js"></script>
+		<script type="module" src="./register.js"></script>
+	</body>
+</html>

@@ -1,19 +1,36 @@
 {
-	"name": "pw_trabalho",
+	"name": "greenherb",
 	"version": "1.0.0",
 	"description": "",
 	"license": "ISC",
-	"author": "",
+	"contributors": [
+		"Bruno Salvador",
+		"Júlia Santos",
+		"Letízia Coelli"
+	],
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
 		"start": "node --env-file=.env index.js",
-		"dev": "nodemon --env-file=.env index.js"
+		"dev": "nodemon --env-file=.env index.js",
+		"lint": "eslint ."
 	},
 	"dependencies": {
-		"express": "^5.2.1"
+		"argon2": "^0.44.0",
+		"compression": "^1.8.1",
+		"csv-parser": "^3.2.1",
+		"express": "^5.2.1",
+		"http2-express-bridge": "^1.0.7",
+		"jsonwebtoken": "^9.0.3",
+		"mongoose": "^9.5.0",
+		"multer": "^2.1.1",
+		"swagger-ui-express": "^5.0.1",
+		"yaml": "^2.8.3"
 	},
 	"devDependencies": {
+		"@eslint/js": "^10.0.1",
+		"eslint": "^10.2.1",
+		"globals": "^17.5.0",
 		"nodemon": "^3.1.14"
 	}
 }
