@@ -69,13 +69,6 @@ async function initSidebar() {
 	if (activeObj && window.innerWidth <= 768) {
 		activeObj.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' })
 	}
-
-	if (isPendente && currentPath !== '/dashboard/') {
-		window.location.replace('/dashboard/')
-	}
-	if (!isAdministrador && (currentPath === '/admin/users/' || currentPath === '/admin/logs/')) {
-		window.location.replace('/dashboard/')
-	}
 }
 
 if (document.readyState === 'loading') {

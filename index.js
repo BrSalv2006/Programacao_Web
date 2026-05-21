@@ -1,9 +1,12 @@
+import dotenv from 'dotenv'
 import express from 'express'
 import compression from 'compression'
 import mongoose from 'mongoose'
 import fs from 'fs'
 import YAML from 'yaml'
 import swaggerUi from 'swagger-ui-express'
+
+dotenv.config({ override: true })
 
 import securityHeaders from './middleware/securityHeaders.js'
 import cors from './middleware/cors.js'
@@ -47,19 +50,21 @@ app.use(express.json())
 app.use(sanitize)
 app.use(cookieParser)
 
-app.use('/dashboard', requireRole('Administrador'))
-
+app.use('/health', healthRouter)
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
+app.use('/api/auth', authRouter)
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {
 	res.redirect('/login/')
 })
 
-app.use('/health', healthRouter)
-app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
-app.use('/api/auth', authRouter)
-
 app.use(auth)
+
+app.use('/dashboard', express.static('private/dashboard'))
+app.use(requireRole('Técnico', 'Responsável', 'Administrador'))
+app.use('/admin', requireRole('Administrador'))
+app.use(express.static('private'))
 
 app.use('/api/ervas', ervasRouter)
 app.use('/api/planos', planosRouter)
