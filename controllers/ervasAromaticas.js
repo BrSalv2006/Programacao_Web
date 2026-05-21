@@ -93,7 +93,16 @@ router.post('/importar', requireRole('Administrador', 'Responsável'), upload.si
 						variedade: data.variedade?.trim(),
 						familia: data.familia?.trim(),
 						cicloDiasFim: Number(data.cicloDiasFim),
-						descricao: data.descricao?.trim()
+						descricao: data.descricao?.trim(),
+						condicoesIdeais: {
+    					    temperaturaMin: data.temperaturaMin ? Number(data.temperaturaMin) : undefined,
+    					    temperaturaMax: data.temperaturaMax ? Number(data.temperaturaMax) : undefined,
+    					    humidadeMin: data.humidadeMin ? Number(data.humidadeMin) : undefined,
+    					    humidadeMax: data.humidadeMax ? Number(data.humidadeMax) : undefined,
+    					    luminosidadeMin: data.luminosidadeMin ? Number(data.luminosidadeMin) : undefined,
+    					    luminosidadeMax: data.luminosidadeMax ? Number(data.luminosidadeMax) : undefined
+    					},
+    					ativo: data.ativo ? data.ativo.trim().toLowerCase() === 'true' : true
 					}
 					resultados.push(novaErva)
 				} catch (_error) {
