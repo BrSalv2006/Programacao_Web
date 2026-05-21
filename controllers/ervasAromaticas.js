@@ -2,7 +2,6 @@ import express from 'express'
 import multer from 'multer'
 import fs from 'fs'
 import csv from 'csv-parser'
-import path from 'path'
 import ErvaAromatica from '../models/ervaAromatica.js'
 import LogAuditoria from '../models/logAuditoria.js'
 import requireRole from '../middleware/requireRole.js'
@@ -97,7 +96,7 @@ router.post('/importar', requireRole('Administrador', 'Responsável'), upload.si
 						descricao: data.descricao?.trim()
 					}
 					resultados.push(novaErva)
-				} catch (err) {
+				} catch (_error) {
 					erros.push(data)
 				}
 			})

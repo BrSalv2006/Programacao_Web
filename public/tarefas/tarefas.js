@@ -10,9 +10,57 @@ document.addEventListener('DOMContentLoaded', () => {
 	const pageAlert = document.getElementById('page-alert')
 
 	const exportBtn = document.getElementById('export-btn')
+	const cancelModal = document.getElementById('cancel-modal')
+	const confirmCancelBtn = document.getElementById('confirm-cancel-btn')
+	const cancelCancelBtn = document.getElementById('cancel-cancel-btn')
+	let taskToCancelId = null
+
 	if (exportBtn) {
 		exportBtn.addEventListener('click', () => {
 			window.open('/api/tarefas/exportar', '_blank')
+		})
+	}
+
+	if (cancelCancelBtn) {
+		cancelCancelBtn.addEventListener('click', () => {
+			cancelModal.classList.remove('open')
+			taskToCancelId = null
+		})
+	}
+
+	if (confirmCancelBtn) {
+		confirmCancelBtn.addEventListener('click', async () => {
+			if (!taskToCancelId) return
+
+			try {
+				const res = await apiFetch(`/api/tarefas/${taskToCancelId}`, {
+					method: 'PATCH',
+					body: JSON.stringify({ estado: 'Anulada' })
+				})
+
+				if (res.ok) {
+					cancelModal.classList.remove('open')
+					taskToCancelId = null
+
+					if (pageAlert) {
+						pageAlert.textContent = 'Tarefa anulada com sucesso!'
+						pageAlert.className = 'alert alert-success'
+						pageAlert.style.display = 'block'
+					}
+					loadTarefas()
+				} else {
+					const errorData = await res.json()
+					cancelModal.classList.remove('open')
+					if (pageAlert) {
+						pageAlert.textContent = errorData.message || 'Erro ao anular tarefa.'
+						pageAlert.className = 'alert alert-error'
+						pageAlert.style.display = 'block'
+					}
+				}
+			} catch (err) {
+				console.error(err)
+				cancelModal.classList.remove('open')
+			}
 		})
 	}
 
@@ -37,6 +85,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		tbody.innerHTML = tarefas.map(t => {
 			const dataFormatada = new Date(t.dataAgendada).toLocaleDateString('pt-PT', { hour: '2-digit', minute: '2-digit' })
 			const tipo = (t.tipo || '').charAt(0).toUpperCase() + (t.tipo || '').slice(1)
+
+			let estadoLabel = 'Concluída'
+			if (t.estado === 'Expirada') estadoLabel = 'Expirada'
+			if (t.estado === 'Anulada') estadoLabel = 'Anulada'
+
 			return `
                         <tr>
                             <td class="text-bold color-dark">${tipo}</td>
@@ -44,13 +97,16 @@ document.addEventListener('DOMContentLoaded', () => {
                             <td>${dataFormatada}</td>
                             <td><span class="alert-badge badge-${t.estado === 'Pendente' ? 'Aviso' : (t.estado === 'Expirada' ? 'Critico' : 'Informativo')}">${t.estado}</span></td>
                             <td>
-                                ${t.estado === 'Pendente' ?
-					`<button class="action-btn exec-btn text-bold" data-id="${t._id}">Marcar como Feito</button>` :
-					`<span class="text-xs color-muted">${t.estado === 'Expirada' ? 'Expirada' : 'Concluída'}</span>`
-				}
+                        ${t.estado === 'Pendente' ? `
+                            <div class="actions-scroll-container">
+                                <button class="action-btn exec-btn text-bold" data-id="${t._id}">Marcar como Feito</button>
+                                <button class="action-btn cancel-btn color-danger" data-id="${t._id}">Anular</button>
+                            </div>
+                        ` : `<span class="text-xs color-muted">${estadoLabel}</span>`}
                             </td>
                         </tr>
-                    `}).join('')
+            `
+		}).join('')
 
 		document.querySelectorAll('.exec-btn').forEach(btn => btn.addEventListener('click', async (e) => {
 			const id = e.target.dataset.id
@@ -60,6 +116,11 @@ document.addEventListener('DOMContentLoaded', () => {
 					body: JSON.stringify({ estado: 'Executada', dataExecucao: new Date() })
 				})
 				if (res.ok) {
+					if (pageAlert) {
+						pageAlert.textContent = 'Tarefa marcada como feita!'
+						pageAlert.className = 'alert alert-success'
+						pageAlert.style.display = 'block'
+					}
 					loadTarefas()
 				} else {
 					const errorData = await res.json()
@@ -67,8 +128,6 @@ document.addEventListener('DOMContentLoaded', () => {
 						pageAlert.textContent = errorData.message || 'Erro ao executar tarefa.'
 						pageAlert.className = 'alert alert-error'
 						pageAlert.style.display = 'block'
-					} else {
-						alert(errorData.message || 'Erro ao executar tarefa.')
 					}
 				}
 			} catch (err) {
@@ -77,10 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
 					pageAlert.textContent = 'Erro ao contactar servidor.'
 					pageAlert.className = 'alert alert-error'
 					pageAlert.style.display = 'block'
-				} else {
-					alert('Erro ao contactar servidor.')
 				}
 			}
+		}))
+
+		document.querySelectorAll('.cancel-btn').forEach(btn => btn.addEventListener('click', (e) => {
+			taskToCancelId = e.target.dataset.id
+			cancelModal.classList.add('open')
 		}))
 	}
 
@@ -90,8 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const data = await res.json()
 			if (data.success) {
 				const ativos = data.data.filter(l => l.estado === 'ativo')
-				document.getElementById('loteId').innerHTML = '<option value="">Selecione o Lote</option>' +
-					ativos.map(l => `<option value="${l._id}">Lote ${l.ervaId?.nome || 'Desconhecido'} (${l.modo})</option>`).join('')
+				document.getElementById('loteId').innerHTML = '<option value="">Selecione o Lote</option>' + ativos.map(l => `<option value="${l._id}">Lote ${l.ervaId?.nome || 'Desconhecido'} (${l.modo})</option>`).join('')
 			}
 		} catch (e) { }
 	}

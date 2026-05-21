@@ -30,6 +30,14 @@ const schema = new mongoose.Schema({
 		type: String,
 		trim: true
 	},
+	condicoesIdeais: {
+		temperaturaMin: Number,
+		temperaturaMax: Number,
+		humidadeMin: Number,
+		humidadeMax: Number,
+		luminosidadeMin: Number,
+		luminosidadeMax: Number
+	},
 	ativo: {
 		type: Boolean,
 		default: true

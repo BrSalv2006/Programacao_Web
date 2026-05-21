@@ -46,6 +46,9 @@ app.use(logger)
 app.use(express.json())
 app.use(sanitize)
 app.use(cookieParser)
+
+app.use('/dashboard', requireRole('Administrador'))
+
 app.use(express.static('public'))
 
 app.get('/', (req, res) => {

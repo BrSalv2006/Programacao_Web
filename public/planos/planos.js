@@ -50,8 +50,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		setGroupDisabled('pontual-fields', tipo !== 'pontual')
 
 		setRequired([
-			'temperaturaMin', 'temperaturaMax', 'humidadeMin', 'humidadeMax', 'luminosidadeMin', 'luminosidadeMax',
-			'planoRega', 'duracaoPrevistaDias', 'regaFrequenciaHoras'
+			'temperaturaMin', 'temperaturaMax', 'humidadeMin', 'humidadeMax',
+			'luminosidadeMin', 'luminosidadeMax', 'planoRega', 'duracaoPrevistaDias', 'regaFrequenciaHoras'
 		], tipo === 'regular')
 		setRequired(['intervaloMinimoHoras', 'tipoIntervencao', 'dosagemOuIntensidade'], tipo === 'emergência')
 		setRequired(['finalidadePontual'], tipo === 'pontual')
@@ -63,8 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const ervasData = await ervasResponse.json()
 			if (ervasData.success) {
 				ervasOptions = ervasData.data
-				ervaSelect.innerHTML = '<option value="">Selecione uma erva...</option>' +
-					ervasOptions.map(e => `<option value="${e._id}">${e.nome}</option>`).join('')
+				ervaSelect.innerHTML = '<option value="">Selecione uma erva...</option>' + ervasOptions.map(e => `<option value="${e._id}">${e.nome}</option>`).join('')
 			}
 
 			await loadPlanos()
@@ -202,6 +201,28 @@ document.addEventListener('DOMContentLoaded', () => {
 		updateTypeFields()
 		modal.classList.add('open')
 	}
+
+	ervaSelect.addEventListener('change', (e) => {
+		if (editingId) return
+
+		const ervaSelecionadaId = e.target.value
+		if (!ervaSelecionadaId) return
+
+		const erva = ervasOptions.find(item => item._id === ervaSelecionadaId)
+
+		if (erva && erva.condicoesIdeais) {
+			const cond = erva.condicoesIdeais
+			document.getElementById('temperaturaMin').value = cond.temperaturaMin ?? ''
+			document.getElementById('temperaturaMax').value = cond.temperaturaMax ?? ''
+			document.getElementById('humidadeMin').value = cond.humidadeMin ?? ''
+			document.getElementById('humidadeMax').value = cond.humidadeMax ?? ''
+			document.getElementById('luminosidadeMin').value = cond.luminosidadeMin ?? ''
+			document.getElementById('luminosidadeMax').value = cond.luminosidadeMax ?? ''
+
+			if (!document.getElementById('duracaoPrevistaDias').value) document.getElementById('duracaoPrevistaDias').value = erva.cicloDiasFim || 30
+			if (!document.getElementById('regaFrequenciaHoras').value) document.getElementById('regaFrequenciaHoras').value = 24
+		}
+	})
 
 	addButton.addEventListener('click', () => openModal())
 	closeModalButton.addEventListener('click', () => modal.classList.remove('open'))

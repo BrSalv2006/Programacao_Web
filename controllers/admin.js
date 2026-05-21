@@ -44,4 +44,48 @@ router.get('/logs', async (req, res, next) => {
 	}
 })
 
+router.get('/logs/exportar', requireRole('Administrador'), async (req, res, next) => {
+	try {
+		const { acao, entidade } = req.query
+		let query = {}
+
+		if (acao) {
+			query.acao = { $regex: acao, $options: 'i' }
+		}
+		if (entidade) {
+			query.entidade = entidade
+		}
+
+		const logs = await LogAuditoria.find(query).populate('utilizadorId', 'name').sort({ createdAt: -1 })
+
+		const linhas = ['Data,Utilizador,Acao,Entidade,Detalhes']
+
+		logs.forEach(log => {
+			const date = new Date(log.createdAt).toLocaleString('pt-PT')
+			const user = log.utilizadorId ? log.utilizadorId.name : 'Sistema'
+
+			let detalhesText = ''
+			if (log.detalhes) {
+				const entries = Object.entries(log.detalhes).filter(([k]) => !['_id', '__v', 'createdAt', 'updatedAt'].includes(k))
+				detalhesText = entries.map(([k, v]) => {
+					const valStr = typeof v === 'object' && v !== null ? JSON.stringify(v) : String(v)
+					return `${k}: ${valStr}`
+				}).join(' | ')
+			}
+
+			const escapedDetalhes = detalhesText.replace(/"/g, '""')
+
+			linhas.push(`"${date}","${user}","${log.acao || ''}","${log.entidade || ''}","${escapedDetalhes}"`)
+		})
+
+		const csvContent = '\uFEFF' + linhas.join('\n')
+
+		res.setHeader('Content-Type', 'text/csv; charset=utf-8')
+		res.setHeader('Content-Disposition', 'attachment; filename="logs-auditoria.csv"')
+		res.status(200).send(csvContent)
+	} catch (error) {
+		next(error)
+	}
+})
+
 export default router

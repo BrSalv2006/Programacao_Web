@@ -85,7 +85,6 @@ router.get('/', async (req, res, next) => {
 			.sort({ createdAt: -1 })
 		res.status(200).json({ success: true, data: lotes })
 	} catch (error) {
-		console.log(error)
 		next(error)
 	}
 })

@@ -169,6 +169,14 @@ document.addEventListener('DOMContentLoaded', () => {
 				document.getElementById('familia').value = erva.familia
 				document.getElementById('cicloDiasFim').value = erva.cicloDiasFim
 				document.getElementById('descricao').value = erva.descricao || ''
+
+				const cond = erva.condicoesIdeais || {}
+				document.getElementById('tempMin').value = cond.temperaturaMin ?? ''
+				document.getElementById('tempMax').value = cond.temperaturaMax ?? ''
+				document.getElementById('humMin').value = cond.humidadeMin ?? ''
+				document.getElementById('humMax').value = cond.humidadeMax ?? ''
+				document.getElementById('lumMin').value = cond.luminosidadeMin ?? ''
+				document.getElementById('lumMax').value = cond.luminosidadeMax ?? ''
 			}
 		} else {
 			document.getElementById('modal-title').textContent = 'Nova Erva Aromática'
@@ -189,18 +197,32 @@ document.addEventListener('DOMContentLoaded', () => {
 		const submitBtn = document.getElementById('submit-btn')
 		submitBtn.disabled = true
 
+		const readNum = (id) => document.getElementById(id).value !== '' ? Number(document.getElementById(id).value) : undefined
+
 		const payload = {
 			nome: document.getElementById('nome').value.trim(),
 			nomeCientifico: document.getElementById('nomeCientifico').value.trim(),
 			variedade: document.getElementById('variedade').value.trim(),
 			familia: document.getElementById('familia').value.trim(),
 			cicloDiasFim: Number(document.getElementById('cicloDiasFim').value),
-			descricao: document.getElementById('descricao').value.trim()
+			descricao: document.getElementById('descricao').value.trim(),
+			condicoesIdeais: {
+				temperaturaMin: readNum('tempMin'),
+				temperaturaMax: readNum('tempMax'),
+				humidadeMin: readNum('humMin'),
+				humidadeMax: readNum('humMax'),
+				luminosidadeMin: readNum('lumMin'),
+				luminosidadeMax: readNum('lumMax')
+			}
 		}
 
 		try {
 			const url = editingId ? `/api/ervas/${editingId}` : '/api/ervas'
-			const response = await apiFetch(url, { method: editingId ? 'PATCH' : 'POST', body: JSON.stringify(payload) })
+			const response = await apiFetch(url, {
+				method: editingId ? 'PATCH' : 'POST',
+				body: JSON.stringify(payload)
+			})
+
 			const data = await response.json()
 			if (response.ok && data.success) {
 				form.reset()

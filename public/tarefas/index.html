@@ -77,6 +77,16 @@
 				</form>
 			</div>
 		</div>
+		<div id="cancel-modal" class="modal">
+			<div class="card modal-card max-w-400 text-center">
+				<h2 class="text-lg text-bold color-dark mb-4">Confirmar Ação</h2>
+				<p id="confirm-message" class="text-base color-muted mb-4">Tem a certeza que deseja anular esta tarefa?</p>
+				<div class="grid-2">
+					<button type="button" id="confirm-cancel-btn" class="btn btn-primary w-full">Confirmar</button>
+					<button type="button" id="cancel-cancel-btn" class="btn btn-secondary w-full">Cancelar</button>
+				</div>
+			</div>
+		</div>
 		<script type="module" src="/js/service-worker-register.js"></script>
 		<script type="module" src="/js/components/sidebar.js"></script>
 		<script type="module" src="tarefas.js"></script>

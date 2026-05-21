@@ -15,7 +15,29 @@
 					<h1 class="text-xl text-black color-dark">Registo de Atividades</h1>
 					<p class="text-sm color-muted">Rastreabilidade completa de todas as ações no sistema.</p>
 				</div>
+				<div class="topbar-actions">
+					<button id="export-btn" class="btn btn-secondary">Exportar CSV</button>
+				</div>
 			</header>
+			<div class="filters-container card p-6 mb-4 grid-2">
+				<div class="input-group">
+					<label for="filter-acao">Filtrar por Ação</label>
+					<input type="text" id="filter-acao" class="form-control" placeholder="Ex: CRIAR_TAREFA">
+				</div>
+				<div class="input-group">
+					<label for="filter-entidade">Filtrar por Entidade</label>
+					<select id="filter-entidade" class="form-control">
+						<option value="">Todas</option>
+						<option value="LoteCultivo">LoteCultivo</option>
+						<option value="Tarefa">Tarefa</option>
+						<option value="User">User</option>
+						<option value="ErvaAromatica">ErvaAromatica</option>
+						<option value="PlanoCultivo">PlanoCultivo</option>
+						<option value="MedicaoAmbiental">MedicaoAmbiental</option>
+						<option value="Alerta">Alerta</option>
+					</select>
+				</div>
+			</div>
 			<div class="table-container">
 				<table class="table">
 					<thead>

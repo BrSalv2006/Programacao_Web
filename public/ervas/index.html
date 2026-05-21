@@ -43,7 +43,7 @@
 			</div>
 		</main>
 		<div id="modal" class="modal">
-			<div class="card modal-card">
+			<div class="card modal-card max-w-600">
 				<div class="modal-header">
 					<h2 id="modal-title" class="text-lg text-bold color-dark">Nova Erva Aromática</h2>
 					<button type="button" id="close-modal" class="close-btn">&times;</button>
@@ -51,14 +51,61 @@
 				<form id="modal-form">
 					<div id="modal-alert" class="alert"></div>
 					<div class="grid-2">
-						<div class="input-group"><label for="nome">Nome Comum</label><input type="text" id="nome" name="nome" class="form-control" required></div>
-						<div class="input-group"><label for="nomeCientifico">Nome Científico</label><input type="text" id="nomeCientifico" name="nomeCientifico" class="form-control" required></div>
-						<div class="input-group"><label for="variedade">Variedade</label><input type="text" id="variedade" name="variedade" class="form-control" required></div>
-						<div class="input-group"><label for="familia">Família Botânica</label><input type="text" id="familia" name="familia" class="form-control" required></div>
-						<div class="input-group"><label for="cicloDiasFim">Ciclo Estimado (Dias)</label><input type="number" id="cicloDiasFim" class="form-control" required min="1"></div>
+						<div class="input-group">
+							<label for="nome">Nome Comum</label>
+							<input type="text" id="nome" name="nome" class="form-control" required placeholder="Ex: Hortelã">
+						</div>
+						<div class="input-group">
+							<label for="nomeCientifico">Nome Científico</label>
+							<input type="text" id="nomeCientifico" name="nomeCientifico" class="form-control" required placeholder="Ex: Mentha spicata">
+						</div>
+						<div class="input-group">
+							<label for="variedade">Variedade</label>
+							<input type="text" id="variedade" name="variedade" class="form-control" required placeholder="Ex: Verde">
+						</div>
+						<div class="input-group">
+							<label for="familia">Família Botânica</label>
+							<input type="text" id="familia" name="familia" class="form-control" required placeholder="Ex: Lamiaceae">
+						</div>
+						<div class="input-group">
+							<label for="cicloDiasFim">Ciclo Estimado (Dias)</label>
+							<input type="number" id="cicloDiasFim" class="form-control" required min="1" placeholder="Ex: 90">
+						</div>
 					</div>
-					<div class="input-group"><label for="descricao">Descrição</label><textarea id="descricao" name="descricao" class="form-control"></textarea></div>
-					<div class="form-actions mt-6"><button type="submit" id="submit-btn" class="btn btn-primary w-full">Guardar</button></div>
+					<div class="input-group">
+						<label for="descricao">Descrição</label>
+						<textarea id="descricao" name="descricao" class="form-control" rows="2" placeholder="Ex: Planta herbácea, muito utilizada para fins culinários e medicinais..."></textarea>
+					</div>
+					<h3 class="text-base text-bold color-dark mt-4 mb-4" style="border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">Condições Ideais (Pré-preenchimento de Planos)</h3>
+					<div class="grid-2">
+						<div class="input-group">
+							<label for="tempMin">Temp. Mínima (°C)</label>
+							<input type="number" id="tempMin" class="form-control" step="0.1" placeholder="Ex: 15">
+						</div>
+						<div class="input-group">
+							<label for="tempMax">Temp. Máxima (°C)</label>
+							<input type="number" id="tempMax" class="form-control" step="0.1" placeholder="Ex: 25">
+						</div>
+						<div class="input-group">
+							<label for="humMin">Humidade Mínima (%)</label>
+							<input type="number" id="humMin" class="form-control" step="0.1" placeholder="Ex: 50">
+						</div>
+						<div class="input-group">
+							<label for="humMax">Humidade Máxima (%)</label>
+							<input type="number" id="humMax" class="form-control" step="0.1" placeholder="Ex: 70">
+						</div>
+						<div class="input-group">
+							<label for="lumMin">Luminosidade Mín. (lux)</label>
+							<input type="number" id="lumMin" class="form-control" step="0.1" placeholder="Ex: 5000">
+						</div>
+						<div class="input-group">
+							<label for="lumMax">Luminosidade Máx. (lux)</label>
+							<input type="number" id="lumMax" class="form-control" step="0.1" placeholder="Ex: 20000">
+						</div>
+					</div>
+					<div class="form-actions mt-6">
+						<button type="submit" id="submit-btn" class="btn btn-primary w-full">Guardar Erva</button>
+					</div>
 				</form>
 			</div>
 		</div>
@@ -75,7 +122,9 @@
 						<label for="csv-file">Ficheiro CSV</label>
 						<input type="file" id="csv-file" accept=".csv" class="form-control" required>
 					</div>
-					<div class="form-actions mt-6"><button type="submit" id="submit-import-btn" class="btn btn-primary w-full">Carregar Ficheiro</button></div>
+					<div class="form-actions mt-6">
+						<button type="submit" id="submit-import-btn" class="btn btn-primary w-full">Carregar Ficheiro</button>
+					</div>
 				</form>
 			</div>
 		</div>
