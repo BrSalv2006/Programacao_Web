@@ -11,7 +11,6 @@ import rateLimiter from './src/middleware/rateLimiter.js'
 import logger from './src/middleware/logger.js'
 import sanitize from './src/middleware/sanitize.js'
 import cookieParser from './src/middleware/cookieParser.js'
-import auth from './src/middleware/auth.js'
 import errorHandler from './src/middleware/errorHandler.js'
 
 // Config
@@ -22,7 +21,6 @@ import { connectDB, disconnectDB } from './src/config/db.js'
 import apiRouter from './src/routes/api.js'
 import uiRouter from './src/routes/ui.js'
 
-import requireRole from './src/middleware/requireRole.js'
 import LoteCultivo from './src/models/loteCultivo.js'
 import { gerarTarefasAutomaticas } from './src/services/lotesService.js'
 

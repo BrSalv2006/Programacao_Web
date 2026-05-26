@@ -107,7 +107,7 @@ router.post('/importar', requireRole('Administrador', 'Responsável'), upload.si
 							})() : true
 						}
 						resultados.push(novaErva)
-					} catch (_error) {
+					} catch (error) {
 						erros.push(data)
 					}
 				})

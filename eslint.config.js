@@ -17,13 +17,13 @@ export default [
 			'semi': ['error', 'never'],
 
 			'no-unused-vars': ['warn', {
-				'argsIgnorePattern': '^_',
-				'varsIgnorePattern': '^_',
-				'caughtErrorsIgnorePattern': '^_'
+				//'argsIgnorePattern': '^_',
+				//'varsIgnorePattern': '^_',
+				//'caughtErrorsIgnorePattern': '^_'
 			}]
 		}
 	},
 	{
-		ignores: ['node_modules/', 'public/', 'private/']
+		ignores: ['node_modules/', 'static/']
 	}
 ]

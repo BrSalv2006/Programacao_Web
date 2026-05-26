@@ -54,7 +54,7 @@ router.post('/register', asyncHandler(async (req, res) => {
 		if (error.code === 11000) {
 			return res.status(409).json({ success: false, message: 'Esta conta já está registada' })
 		}
-		throw error // Passa para o asyncHandler se for outro erro
+		throw error
 	}
 }))
 
