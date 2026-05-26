@@ -21,8 +21,6 @@ import { connectDB, disconnectDB } from './src/config/db.js'
 import apiRouter from './src/routes/api.js'
 import uiRouter from './src/routes/ui.js'
 
-import LoteCultivo from './src/models/loteCultivo.js'
-import { gerarTarefasAutomaticas } from './src/services/lotesService.js'
 
 validateEnv()
 
@@ -47,35 +45,10 @@ app.use('/', uiRouter)
 // Middleware
 app.use(errorHandler)
 
-//async function gerarTarefasDiarias() {
-//	const lotesAtivos = await LoteCultivo.find({ estado: 'ativo' }).select('_id planoId estado')
-//	for (const lote of lotesAtivos) {
-//		try {
-//			await gerarTarefasAutomaticas(lote)
-//		} catch (error) {
-//			console.error('Falha ao gerar tarefas diarias:', error.message)
-//		}
-//	}
-//}
-//
-//function agendarGeracaoDiaria() {
-//	const agora = new Date()
-//	const proximaMeiaNoite = new Date(agora)
-//	proximaMeiaNoite.setHours(24, 0, 0, 0)
-//	const msAteMeiaNoite = proximaMeiaNoite.getTime() - agora.getTime()
-//
-//	setTimeout(async () => {
-//		await gerarTarefasDiarias()
-//		setInterval(gerarTarefasDiarias, 24 * 60 * 60 * 1000)
-//	}, msAteMeiaNoite)
-//}
-
 connectDB().then(() => {
 	app.listen(PORT, () => {
 		console.log(`Server is listening on port ${PORT}.`)
 		console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
-		//gerarTarefasDiarias().catch(error => console.error('Falha ao gerar tarefas diarias:', error.message))
-		//agendarGeracaoDiaria()
 	})
 }).catch((error) => {
 	console.error('Erro crítico ao iniciar a aplicação:', error)
