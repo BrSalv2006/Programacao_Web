@@ -47,12 +47,12 @@ router.get('/exportar', requireRole('Administrador', 'Responsável'), asyncHandl
 	res.status(200).send(csvContent)
 }))
 
-router.post('/', requireRole('Administrador', 'Técnico'), asyncHandler(async (req, res) => {
+router.post('/', asyncHandler(async (req, res) => {
 	const resultado = await criarTarefa(req.body, req.user)
 	res.status(resultado.status).json(resultado.payload)
 }))
 
-router.patch('/:id', requireRole('Administrador', 'Técnico'), asyncHandler(async (req, res) => {
+router.patch('/:id', asyncHandler(async (req, res) => {
 	const resultado = await atualizarTarefa(req.params.id, req.body, req.user)
 	res.status(resultado.status).json(resultado.payload)
 }))

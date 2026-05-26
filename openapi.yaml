@@ -15,6 +15,7 @@ tags:
   - name: Lotes de Cultivo
   - name: Tarefas Operacionais
   - name: Monitorização
+  - name: Admin
 
 paths:
   /health:
@@ -24,6 +25,39 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  uptime:
+                    type: number
+                  db:
+                    type: string
+
+  /auth/me:
+    get:
+      tags:
+        - Auth
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserPublic"
+        "401":
+          description: Unauthorized
 
   /auth/register:
     post:
@@ -38,6 +72,15 @@ paths:
       responses:
         "201":
           description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserPublic"
         "400":
           description: Bad Request
         "409":
@@ -52,17 +95,19 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [email, password]
-              properties:
-                email:
-                  type: string
-                  format: email
-                password:
-                  type: string
+              $ref: "#/components/schemas/UserLogin"
       responses:
         "200":
           description: OK
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Cookies access e refresh
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
         "401":
           description: Unauthorized
 
@@ -73,6 +118,15 @@ paths:
       responses:
         "200":
           description: OK
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Cookies access e refresh
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
         "401":
           description: Unauthorized
 
@@ -83,6 +137,53 @@ paths:
       responses:
         "200":
           description: OK
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Limpeza de cookies access e refresh
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/password/request:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/password/reset:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordReset"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Bad Request
 
   /ervas:
     get:
@@ -90,23 +191,57 @@ paths:
         - Ervas Aromáticas
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      parameters:
+        - name: all
+          in: query
+          schema:
+            type: string
+          description: "'true' para incluir inativas"
+        - name: view
+          in: query
+          schema:
+            type: string
+            enum: [select, planos]
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ErvaAromatica"
     post:
       tags:
         - Ervas Aromáticas
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ErvaAromatica"
+              $ref: "#/components/schemas/ErvaAromaticaInput"
       responses:
         "201":
           description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ErvaAromatica"
         "401":
           description: Unauthorized
         "403":
@@ -118,12 +253,15 @@ paths:
         - Ervas Aromáticas
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
               type: object
+              required: [file]
               properties:
                 file:
                   type: string
@@ -132,6 +270,10 @@ paths:
       responses:
         "201":
           description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
         "207":
           description: Multi-Status (Erros parciais)
         "400":
@@ -149,9 +291,19 @@ paths:
         - Ervas Aromáticas
       security:
         - cookieAuth: []
+        - bearerAuth: []
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ErvaAromatica"
         "404":
           description: Not Found
     patch:
@@ -159,42 +311,25 @@ paths:
         - Ervas Aromáticas
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/ErvaAromatica"
+              $ref: "#/components/schemas/ErvaAromaticaInput"
       responses:
         "200":
           description: OK
-        "404":
-          description: Not Found
-    delete:
-      tags:
-        - Ervas Aromáticas
-      security:
-        - cookieAuth: []
-      responses:
-        "200":
-          description: OK - Soft Delete
-        "404":
-          description: Not Found
-
-  /ervas/{id}/reativar:
-    parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          type: string
-    patch:
-      tags:
-        - Ervas Aromáticas
-      security:
-        - cookieAuth: []
-      responses:
-        "200":
-          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/ErvaAromatica"
         "404":
           description: Not Found
 
@@ -204,27 +339,54 @@ paths:
         - Planos de Cultivo
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      parameters:
+        - name: view
+          in: query
+          schema:
+            type: string
+            enum: [select]
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/PlanoCultivo"
     post:
       tags:
         - Planos de Cultivo
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PlanoCultivo"
+              $ref: "#/components/schemas/PlanoCultivoInput"
       responses:
         "201":
           description: Created
-        "401":
-          description: Unauthorized
-        "403":
-          description: Forbidden
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/PlanoCultivo"
+        "400":
+          description: Bad Request
 
   /planos/{id}:
     parameters:
@@ -238,14 +400,25 @@ paths:
         - Planos de Cultivo
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/PlanoCultivo"
+              $ref: "#/components/schemas/PlanoCultivoInput"
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/PlanoCultivo"
         "404":
           description: Not Found
 
@@ -255,23 +428,52 @@ paths:
         - Lotes de Cultivo
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      parameters:
+        - name: view
+          in: query
+          schema:
+            type: string
+            enum: [compact, select]
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/LoteCultivo"
     post:
       tags:
         - Lotes de Cultivo
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LoteCultivo"
+              $ref: "#/components/schemas/LoteCultivoInput"
       responses:
         "201":
           description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/LoteCultivo"
 
   /lotes/exportar:
     get:
@@ -279,6 +481,8 @@ paths:
         - Lotes de Cultivo
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       responses:
         "200":
           description: OK
@@ -295,19 +499,199 @@ paths:
         required: true
         schema:
           type: string
+    get:
+      tags:
+        - Lotes de Cultivo
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/LoteCultivo"
+        "404":
+          description: Not Found
+
+  /lotes/{id}/dividir:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      tags:
+        - Lotes de Cultivo
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoteDividir"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /lotes/{id}/alterar-plano:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
     patch:
       tags:
         - Lotes de Cultivo
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoteAlterarPlano"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+
+  /lotes/{id}/concluir:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Lotes de Cultivo
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/LoteCultivo"
+              $ref: "#/components/schemas/LoteConcluir"
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+
+  /lotes/{id}/registar-perdas:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Lotes de Cultivo
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador, Responsável ou Técnico
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoteRegistarPerdas"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+
+  /lotes/{id}/comprometer:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Lotes de Cultivo
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "404":
+          description: Not Found
+
+  /lotes/{id}/resumo:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Lotes de Cultivo
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/LoteResumo"
         "404":
           description: Not Found
 
@@ -317,28 +701,56 @@ paths:
         - Tarefas Operacionais
       security:
         - cookieAuth: []
+        - bearerAuth: []
       parameters:
         - name: loteId
           in: query
           schema:
             type: string
+        - name: view
+          in: query
+          schema:
+            type: string
+            enum: [compact]
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Tarefa"
     post:
       tags:
         - Tarefas Operacionais
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Técnico, Responsável ou Administrador
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Tarefa"
+              $ref: "#/components/schemas/TarefaInput"
       responses:
         "201":
           description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Tarefa"
 
   /tarefas/exportar:
     get:
@@ -346,6 +758,8 @@ paths:
         - Tarefas Operacionais
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       responses:
         "200":
           description: OK
@@ -367,14 +781,25 @@ paths:
         - Tarefas Operacionais
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Técnico, Responsável ou Administrador
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/Tarefa"
+              $ref: "#/components/schemas/TarefaInput"
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Tarefa"
         "404":
           description: Not Found
 
@@ -384,6 +809,7 @@ paths:
         - Monitorização
       security:
         - cookieAuth: []
+        - bearerAuth: []
       parameters:
         - name: loteId
           in: query
@@ -392,20 +818,42 @@ paths:
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/MedicaoAmbiental"
     post:
       tags:
         - Monitorização
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Técnico, Responsável ou Administrador
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MedicaoAmbiental"
+              $ref: "#/components/schemas/MedicaoAmbientalInput"
       responses:
         "201":
           description: Created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/MedicaoAmbiental"
 
   /medicoes/exportar:
     get:
@@ -413,6 +861,8 @@ paths:
         - Monitorização
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       responses:
         "200":
           description: OK
@@ -428,9 +878,27 @@ paths:
         - Monitorização
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      parameters:
+        - name: view
+          in: query
+          schema:
+            type: string
+            enum: [compact]
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Alerta"
 
   /medicoes/alertas/{id}:
     parameters:
@@ -444,21 +912,134 @@ paths:
         - Monitorização
       security:
         - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador ou Responsável
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                estado:
-                  type: string
-                justificacao:
-                  type: string
+              $ref: "#/components/schemas/AlertaAtualizar"
       responses:
         "200":
           description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/Alerta"
         "404":
           description: Not Found
+
+  /admin/users:
+    get:
+      tags:
+        - Admin
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/UserPublic"
+
+  /admin/users/{id}/role:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    patch:
+      tags:
+        - Admin
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserRoleUpdate"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserPublic"
+        "404":
+          description: Not Found
+
+  /admin/logs:
+    get:
+      tags:
+        - Admin
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/SuccessResponse"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/LogAuditoria"
+
+  /admin/logs/exportar:
+    get:
+      tags:
+        - Admin
+      security:
+        - cookieAuth: []
+        - bearerAuth: []
+      description: Requer role Administrador
+      parameters:
+        - name: acao
+          in: query
+          schema:
+            type: string
+        - name: entidade
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
 
 components:
   securitySchemes:
@@ -466,11 +1047,57 @@ components:
       type: apiKey
       in: cookie
       name: access
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
 
   schemas:
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        data:
+          nullable: true
+      required: [success]
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        details:
+          nullable: true
+      required: [success, message]
+
+    UserPublic:
+      type: object
+      properties:
+        _id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          enum: [Pendente, Técnico, Responsável, Administrador]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
     UserRegister:
       type: object
-      required: [name, email, password]
+      required: [name, email, password, confirmPassword]
       properties:
         name:
           type: string
@@ -479,8 +1106,48 @@ components:
           format: email
         password:
           type: string
+        confirmPassword:
+          type: string
 
-    ErvaAromatica:
+    UserLogin:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    UserRoleUpdate:
+      type: object
+      required: [role]
+      properties:
+        role:
+          type: string
+          enum: [Pendente, Técnico, Responsável, Administrador]
+
+    PasswordRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+
+    PasswordReset:
+      type: object
+      required: [email, token, newPassword]
+      properties:
+        email:
+          type: string
+          format: email
+        token:
+          type: string
+        newPassword:
+          type: string
+
+    ErvaAromaticaInput:
       type: object
       required: [nome, nomeCientifico, variedade, familia, cicloDiasFim]
       properties:
@@ -496,16 +1163,47 @@ components:
           type: number
         descricao:
           type: string
+        condicoesIdeais:
+          type: object
+          properties:
+            temperaturaMin:
+              type: number
+            temperaturaMax:
+              type: number
+            humidadeMin:
+              type: number
+            humidadeMax:
+              type: number
+            luminosidadeMin:
+              type: number
+            luminosidadeMax:
+              type: number
         ativo:
           type: boolean
 
-    PlanoCultivo:
+    ErvaAromatica:
+      allOf:
+        - $ref: "#/components/schemas/ErvaAromaticaInput"
+        - type: object
+          properties:
+            _id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    PlanoCultivoInput:
       type: object
-      required: [tipo]
+      required: [nome, tipo, ervaId]
       properties:
+        nome:
+          type: string
         tipo:
           type: string
-          enum: [Regular, Emergência, Pontual]
+          enum: ["regular", "emergência", "pontual"]
         ervaId:
           type: string
         condicoesIdeais:
@@ -523,48 +1221,180 @@ components:
               type: number
             luminosidadeMax:
               type: number
-        intervencoes:
-          type: array
-          items:
-            type: object
-            properties:
-              tipo:
+        tarefasOperacionais:
+          type: object
+          properties:
+            tiposPermitidos:
+              type: array
+              items:
                 type: string
-              frequenciaHoras:
-                type: number
-              dosagem:
-                type: string
-        autorizadoPor:
+                enum: ["rega", "fertilização", "colheita", "monitorização"]
+            regaFrequenciaHoras:
+              type: number
+            monitorizacaoFrequenciaHoras:
+              type: number
+            fertilizacaoFrequenciaHoras:
+              type: number
+            colheitaFrequenciaHoras:
+              type: number
+            colheitaNoFim:
+              type: boolean
+            fertilizacaoDosagem:
+              type: string
+            horarioPreferencial:
+              type: string
+        planoRega:
+          type: string
+        fertilizacao:
+          type: string
+        duracaoPrevistaDias:
+          type: number
+        detalhesEmergencia:
+          type: object
+          properties:
+            intervaloMinimoHoras:
+              type: number
+            tipoIntervencao:
+              type: string
+            dosagemOuIntensidade:
+              type: string
+        finalidadePontual:
           type: string
 
-    LoteCultivo:
+    PlanoCultivo:
+      allOf:
+        - $ref: "#/components/schemas/PlanoCultivoInput"
+        - type: object
+          properties:
+            _id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    LoteCultivoInput:
       type: object
-      required: [ervaId, planoId, quantidadeInicial]
+      required: [nome, ervaId, planoId, quantidadeInicial]
       properties:
+        nome:
+          type: string
         ervaId:
           type: string
         planoId:
           type: string
-        estado:
-          type: string
-          enum: [Ativo, Concluído, Comprometido]
+        planosAssociados:
+          type: array
+          items:
+            type: string
         modo:
           type: string
-          enum: [Manual, Automático]
+          enum: ["Manual", "Automático"]
         dataInicio:
-          type: string
-          format: date-time
-        dataFimReal:
           type: string
           format: date-time
         quantidadeInicial:
           type: number
-        perdas:
+
+    LoteCultivo:
+      allOf:
+        - $ref: "#/components/schemas/LoteCultivoInput"
+        - type: object
+          properties:
+            _id:
+              type: string
+            estado:
+              type: string
+              enum: ["ativo", "concluído", "comprometido"]
+            dataFimReal:
+              type: string
+              format: date-time
+            perdas:
+              type: number
+            quantidadeColhida:
+              type: number
+            loteOrigemId:
+              type: string
+            historicoPlanos:
+              type: array
+              items:
+                type: object
+                properties:
+                  planoId:
+                    type: string
+                  dataInicio:
+                    type: string
+                    format: date-time
+                  dataFim:
+                    type: string
+                    format: date-time
+            quantidadeAtual:
+              type: number
+            produtividade:
+              type: number
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    LoteDividir:
+      type: object
+      required: [quantidadeRetirada]
+      properties:
+        quantidadeRetirada:
           type: number
-        loteOrigemId:
+        novoNome:
           type: string
 
-    Tarefa:
+    LoteAlterarPlano:
+      type: object
+      required: [novoPlanoId]
+      properties:
+        novoPlanoId:
+          type: string
+
+    LoteConcluir:
+      type: object
+      properties:
+        perdas:
+          type: number
+        quantidadeColhida:
+          type: number
+
+    LoteRegistarPerdas:
+      type: object
+      required: [quantidadePerdida]
+      properties:
+        quantidadePerdida:
+          type: number
+
+    LoteResumo:
+      type: object
+      properties:
+        lote:
+          $ref: "#/components/schemas/LoteCultivo"
+        planos:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanoCultivo"
+        tarefasPendentes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tarefa"
+        tarefasExecutadas:
+          type: array
+          items:
+            $ref: "#/components/schemas/Tarefa"
+        medicoes:
+          type: array
+          items:
+            $ref: "#/components/schemas/MedicaoAmbiental"
+
+    TarefaInput:
       type: object
       required: [loteId, tipo, dataAgendada]
       properties:
@@ -572,10 +1402,10 @@ components:
           type: string
         tipo:
           type: string
-          enum: [Rega, Fertilização, Colheita, Monitorização, Outro]
+          enum: ["rega", "fertilização", "colheita", "monitorização", "outro"]
         estado:
           type: string
-          enum: [Pendente, Executada, Expirada]
+          enum: ["Pendente", "Executada", "Expirada", "Anulada"]
         dataAgendada:
           type: string
           format: date-time
@@ -585,7 +1415,21 @@ components:
         responsavelId:
           type: string
 
-    MedicaoAmbiental:
+    Tarefa:
+      allOf:
+        - $ref: "#/components/schemas/TarefaInput"
+        - type: object
+          properties:
+            _id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    MedicaoAmbientalInput:
       type: object
       required: [loteId]
       properties:
@@ -597,24 +1441,83 @@ components:
           type: number
         luminosidade:
           type: number
+        sensorId:
+          type: string
+        falhaSensor:
+          type: boolean
+        observacoes:
+          type: string
         dataHora:
           type: string
           format: date-time
 
+    MedicaoAmbiental:
+      allOf:
+        - $ref: "#/components/schemas/MedicaoAmbientalInput"
+        - type: object
+          properties:
+            _id:
+              type: string
+            createdAt:
+              type: string
+              format: date-time
+            updatedAt:
+              type: string
+              format: date-time
+
+    AlertaAtualizar:
+      type: object
+      properties:
+        estado:
+          type: string
+          enum: ["Pendente", "Resolvido", "Ignorado"]
+        justificacao:
+          type: string
+
     Alerta:
       type: object
       properties:
+        _id:
+          type: string
         loteId:
           type: string
         medicaoId:
           type: string
         nivel:
           type: string
-          enum: [Informativo, Aviso, Crítico]
+          enum: ["Informativo", "Aviso", "Crítico"]
         tipo:
           type: string
         estado:
           type: string
-          enum: [Pendente, Resolvido, Ignorado]
+          enum: ["Pendente", "Resolvido", "Ignorado"]
         justificacao:
           type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    LogAuditoria:
+      type: object
+      properties:
+        _id:
+          type: string
+        utilizadorId:
+          type: string
+        acao:
+          type: string
+        entidade:
+          type: string
+        entidadeId:
+          type: string
+        detalhes:
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

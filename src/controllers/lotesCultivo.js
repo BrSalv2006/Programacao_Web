@@ -78,7 +78,7 @@ router.patch('/:id/concluir', requireRole('Administrador', 'Responsável'), asyn
 	res.status(resultado.status).json(resultado.payload)
 }))
 
-router.patch('/:id/registar-perdas', requireRole('Administrador', 'Responsável', 'Técnico'), asyncHandler(async (req, res) => {
+router.patch('/:id/registar-perdas', asyncHandler(async (req, res) => {
 	const resultado = await registarPerdasLote(req.params.id, req.body.quantidadePerdida, req.user)
 	res.status(resultado.status).json(resultado.payload)
 }))

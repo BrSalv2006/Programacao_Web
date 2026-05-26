@@ -24,7 +24,7 @@ router.get('/exportar', requireRole('Administrador', 'Responsável'), asyncHandl
 	res.status(200).send(csvContent)
 }))
 
-router.post('/', requireRole('Administrador', 'Técnico'), asyncHandler(async (req, res) => {
+router.post('/', asyncHandler(async (req, res) => {
 	const novaMedicao = await processarNovaMedicao(req.body, req.user)
 	res.status(201).json({ success: true, data: novaMedicao })
 }))

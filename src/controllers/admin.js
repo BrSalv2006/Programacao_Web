@@ -1,5 +1,4 @@
 import express from 'express'
-import requireRole from '../middleware/requireRole.js'
 import asyncHandler from '../middleware/asyncHandler.js'
 import {
 	listarUsers,
@@ -25,7 +24,7 @@ router.get('/logs', asyncHandler(async (req, res) => {
 	res.status(200).json({ success: true, data: logs })
 }))
 
-router.get('/logs/exportar', requireRole('Administrador'), asyncHandler(async (req, res) => {
+router.get('/logs/exportar', asyncHandler(async (req, res) => {
 	const csvContent = await gerarLogsCsv(req.query)
 	res.setHeader('Content-Type', 'text/csv; charset=utf-8')
 	res.setHeader('Content-Disposition', 'attachment; filename="logs-auditoria.csv"')
