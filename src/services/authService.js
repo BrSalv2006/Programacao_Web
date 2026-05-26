@@ -139,7 +139,7 @@ export async function atualizarTokens(refreshToken) {
 			payload: { success: true, message: 'Tokens atualizados com sucesso.' },
 			cookies: buildAuthCookies(tokens)
 		}
-	} catch (error) {
+	} catch {
 		return { status: 401, payload: { success: false, message: 'Token de atualização inválido ou expirado.' } }
 	}
 }

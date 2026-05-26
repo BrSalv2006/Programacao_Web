@@ -247,7 +247,7 @@ textarea.form-control::-webkit-scrollbar-thumb:hover {
 select.form-control {
 	appearance: none;
 	-webkit-appearance: none;
-	background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%232c4a3b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+	background-image: url("/img/arrowDown.svg");
 	background-repeat: no-repeat;
 	background-position: right 1.2rem center;
 	background-size: 1.1em;

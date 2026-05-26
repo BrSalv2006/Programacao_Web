@@ -1,4 +1,5 @@
 const errorHandler = (error, req, res, next) => {
+	void next
 	const isProduction = process.env.NODE_ENV === 'production'
 
 	if (error.name === 'ValidationError') {

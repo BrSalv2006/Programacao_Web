@@ -3,7 +3,6 @@ import fs from 'fs'
 import YAML from 'yaml'
 import swaggerUi from 'swagger-ui-express'
 
-
 // Middleware
 import auth from '../middleware/auth.js'
 import requireRole from '../middleware/requireRole.js'

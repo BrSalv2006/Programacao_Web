@@ -21,7 +21,6 @@ import { connectDB, disconnectDB } from './src/config/db.js'
 import apiRouter from './src/routes/api.js'
 import uiRouter from './src/routes/ui.js'
 
-
 validateEnv()
 
 const app = express()

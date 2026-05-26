@@ -16,11 +16,7 @@ export default [
 			'quotes': ['error', 'single'],
 			'semi': ['error', 'never'],
 
-			'no-unused-vars': ['warn', {
-				//'argsIgnorePattern': '^_',
-				//'varsIgnorePattern': '^_',
-				//'caughtErrorsIgnorePattern': '^_'
-			}]
+			'no-unused-vars': ['warn']
 		}
 	},
 	{

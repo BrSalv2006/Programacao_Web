@@ -298,7 +298,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (fertilizacaoText) {
 				payload.fertilizacao = fertilizacaoText
 			} else {
-				// Remove fertilização dos tipos permitidos
 				payload.tarefasOperacionais.tiposPermitidos = ['rega', 'colheita', 'monitorização']
 			}
 			payload.duracaoPrevistaDias = readNumber('duracaoPrevistaDias')

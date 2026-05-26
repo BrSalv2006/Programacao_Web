@@ -92,7 +92,7 @@ export async function importarErvas(filePath, user) {
 						})() : true
 					}
 					resultados.push(novaErva)
-				} catch (error) {
+				} catch {
 					erros.push(data)
 				}
 			})

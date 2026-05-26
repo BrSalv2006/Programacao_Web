@@ -13,7 +13,7 @@ const schema = new mongoose.Schema({
 	},
 	estado: {
 		type: String,
-		enum: ['Pendente', 'Executada', 'Expirada', 'Anulada'], // Adicionado Anulada
+		enum: ['Pendente', 'Executada', 'Expirada', 'Anulada'],
 		default: 'Pendente'
 	},
 	dataAgendada: {

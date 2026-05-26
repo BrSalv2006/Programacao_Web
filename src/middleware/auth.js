@@ -41,7 +41,7 @@ const auth = async (req, res, next) => {
 
 		req.user = user
 		next()
-	} catch (error) {
+	} catch {
 		res.clearCookie('access')
 		if (!isApiRequest) {
 			return res.redirect('/login/')
