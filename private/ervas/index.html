@@ -110,13 +110,16 @@
 			</div>
 		</div>
 		<div id="import-modal" class="modal">
-			<div class="card modal-card">
+			<div class="card modal-card" style="max-width: 500px; width: 100%; box-sizing: border-box;">
 				<div class="modal-header">
 					<h2 class="text-lg text-bold color-dark">Importar Ervas via CSV</h2>
 					<button type="button" id="close-import" class="close-btn">&times;</button>
 				</div>
-				<form id="import-form">
-					<p class="text-sm color-muted mb-4">O ficheiro CSV deve conter os cabeçalhos: <code>nome,nomeCientifico,variedade,familia,cicloDiasFim,descricao,temperaturaMin,temperaturaMax,humidadeMin,humidadeMax,luminosidadeMin,luminosidadeMax,ativo</code></p>
+				<form id="import-form" style="width: 100%;">
+					<div class="mb-4" style="background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 0.85rem; border-radius: 6px; box-sizing: border-box;">
+					    <p class="text-sm text-bold color-dark mb-2" style="margin: 0 0 0.5rem 0;">Cabeçalhos obrigatórios na 1ª linha do CSV:</p>
+					    <p style="display: block; line-height: 1.8; margin-bottom: 0.75rem; word-break: break-all; overflow-wrap: break-word; font-family: monospace;">nome,nomeCientifico,variedade,familia,cicloDiasFim,descricao,temperaturaMin,temperaturaMax,humidadeMin,humidadeMax,luminosidadeMin,luminosidadeMax,ativo</p>
+					</div>
 					<div id="import-alert" class="alert"></div>
 					<div class="input-group">
 						<label for="csv-file">Ficheiro CSV</label>
