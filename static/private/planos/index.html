@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Planos de Cultivo - GREENHERB</title>
+		<link rel="icon" href="/img/favicon.ico" type="image/x-icon">
+		<link rel="stylesheet" href="/css/global.css">
+		<link rel="stylesheet" href="./planos.css">
+	</head>
+	<body class="dashboard-layout">
+		<aside class="sidebar card"></aside>
+		<main class="main-content">
+			<header class="topbar">
+				<div>
+					<h1 class="text-xl text-black color-dark">Planos de Cultivo</h1>
+					<p class="text-sm color-muted">Gira os planos e as suas condições ideais.</p>
+				</div>
+				<div class="topbar-actions">
+					<button id="add-btn" class="btn btn-primary">Novo Plano</button>
+				</div>
+			</header>
+			<h2 class="text-lg text-bold mb-4 color-dark">Planos Regulares</h2>
+			<section class="table-container mb-6">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Nome</th>
+							<th>Erva Aromática</th>
+							<th>Temperatura (°C)</th>
+							<th>Humidade (%)</th>
+							<th>Luminosidade (lux)</th>
+							<th>Ações</th>
+						</tr>
+					</thead>
+					<tbody id="table-regular-body">
+						<tr>
+							<td colspan="6" class="text-center color-muted">A carregar dados...</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+			<h2 class="text-lg text-bold mb-4 color-dark mt-6">Planos de Emergência</h2>
+			<section class="table-container mb-6">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Nome</th>
+							<th>Erva Aromática</th>
+							<th>Tipo de Intervenção</th>
+							<th>Intervalo (h)</th>
+							<th>Dosagem/Intensidade</th>
+							<th>Ações</th>
+						</tr>
+					</thead>
+					<tbody id="table-emergencia-body">
+						<tr>
+							<td colspan="6" class="text-center color-muted">A carregar dados...</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+			<h2 class="text-lg text-bold mb-4 color-dark mt-6">Planos Pontuais</h2>
+			<section class="table-container mb-6">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Nome</th>
+							<th>Erva Aromática</th>
+							<th>Finalidade</th>
+							<th>Ações</th>
+						</tr>
+					</thead>
+					<tbody id="table-pontual-body">
+						<tr>
+							<td colspan="4" class="text-center color-muted">A carregar dados...</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
+		</main>
+		<div id="modal" class="modal">
+			<div class="card modal-card">
+				<div class="modal-header">
+					<h2 id="modal-title" class="text-lg text-bold color-dark">Novo Plano de Cultivo</h2>
+					<button id="close-modal" class="close-btn" title="Fechar">×</button>
+				</div>
+				<form id="modal-form">
+					<div class="input-group">
+						<label for="nome">Nome do Plano</label>
+						<input type="text" id="nome" name="nome" class="form-control" placeholder="Ex: Plano Verão Lote A" required>
+					</div>
+					<div class="input-group">
+						<label for="tipo">Tipo de Plano</label>
+						<select id="tipo" name="tipo" class="form-control" required>
+							<option value="regular">Regular</option>
+							<option value="emergência">Emergência</option>
+							<option value="pontual">Pontual</option>
+						</select>
+					</div>
+					<div class="input-group">
+						<label for="ervaId">Erva Aromática</label>
+						<select id="ervaId" name="ervaId" class="form-control" required>
+							<option value="">A carregar...</option>
+						</select>
+					</div>
+					<div id="regular-fields">
+						<h3 class="section-title">Condições Aceitáveis</h3>
+						<div class="grid-2">
+							<div class="input-group">
+								<label for="temperaturaMin">Temperatura Mínima (°C)</label>
+								<input type="number" id="temperaturaMin" name="temperaturaMin" class="form-control" step="0.1" placeholder="Ex: 18">
+							</div>
+							<div class="input-group">
+								<label for="temperaturaMax">Temperatura Máxima (°C)</label>
+								<input type="number" id="temperaturaMax" name="temperaturaMax" class="form-control" step="0.1" placeholder="Ex: 25">
+							</div>
+							<div class="input-group">
+								<label for="humidadeMin">Humidade Mínima (%)</label>
+								<input type="number" id="humidadeMin" name="humidadeMin" class="form-control" step="0.1" placeholder="Ex: 50">
+							</div>
+							<div class="input-group">
+								<label for="humidadeMax">Humidade Máxima (%)</label>
+								<input type="number" id="humidadeMax" name="humidadeMax" class="form-control" step="0.1" placeholder="Ex: 70">
+							</div>
+							<div class="input-group">
+								<label for="luminosidadeMin">Luminosidade Mín. (lux)</label>
+								<input type="number" id="luminosidadeMin" name="luminosidadeMin" class="form-control" step="0.1" placeholder="Ex: 5000">
+							</div>
+							<div class="input-group">
+								<label for="luminosidadeMax">Luminosidade Máx. (lux)</label>
+								<input type="number" id="luminosidadeMax" name="luminosidadeMax" class="form-control" step="0.1" placeholder="Ex: 20000">
+							</div>
+						</div>
+						<div class="grid-2">
+							<div class="input-group">
+								<label for="duracaoPrevistaDias">Duração Prevista (dias)</label>
+								<input type="number" id="duracaoPrevistaDias" class="form-control" min="1" placeholder="Ex: 45">
+							</div>
+							<div class="input-group">
+								<label for="horarioPreferencial">Horário Preferencial (Opcional)</label>
+								<input type="time" id="horarioPreferencial" class="form-control">
+							</div>
+						</div>
+						<h3 class="section-title mt-4">Plano Regular - Rega</h3>
+						<div class="grid-2">
+							<div class="input-group">
+								<label for="planoRega">Detalhes do Plano de Rega</label>
+								<input type="text" id="planoRega" class="form-control" placeholder="Ex: Rega gota-a-gota">
+							</div>
+							<div class="input-group">
+								<label for="regaFrequenciaHoras">Intervalo Frequência (Horas)</label>
+								<input type="number" id="regaFrequenciaHoras" class="form-control" placeholder="Ex: 24">
+							</div>
+						</div>
+						<h3 class="section-title mt-4">Plano Regular - Fertilização (Opcional)</h3>
+						<div class="grid-2">
+							<div class="input-group">
+								<label for="fertilizacao">Detalhes da Fertilização</label>
+								<input type="text" id="fertilizacao" class="form-control" placeholder="Ex: Orgânica semanal">
+							</div>
+							<div class="input-group">
+								<label for="fertilizacaoDosagem">Dosagem Fertilização</label>
+								<input type="text" id="fertilizacaoDosagem" class="form-control" placeholder="Ex: 50ml/L">
+							</div>
+							<div class="input-group">
+								<label for="fertilizacaoFrequenciaHoras">Intervalo Frequência (Horas)</label>
+								<input type="number" id="fertilizacaoFrequenciaHoras" class="form-control" placeholder="Ex: 168 (7 dias)">
+							</div>
+						</div>
+						<h3 class="section-title mt-4">Plano Regular - Monitorização</h3>
+						<div class="grid-1">
+							<div class="input-group">
+								<label for="monitorizacaoFrequenciaHoras">Intervalo Frequência (Horas)</label>
+								<input type="number" id="monitorizacaoFrequenciaHoras" class="form-control" placeholder="Ex: 12">
+							</div>
+						</div>
+						<h3 class="section-title mt-4">Plano Regular - Colheita</h3>
+						<div class="grid-2">
+							<div class="input-group">
+								<label for="colheitaFrequenciaHoras">Intervalo Frequência (Horas)</label>
+								<input type="number" id="colheitaFrequenciaHoras" class="form-control" placeholder="Ex: 168 (7 dias)">
+							</div>
+							<div class="input-group checkbox-group">
+								<label class="checkbox-label" for="colheitaNoFim">
+									<input type="checkbox" id="colheitaNoFim"> Colheita apenas no fim do ciclo </label>
+							</div>
+						</div>
+					</div>
+					<div id="emergencia-fields" class="d-none">
+						<h3 class="section-title">Plano de Emergência</h3>
+						<div class="grid-2">
+							<div class="input-group">
+								<label for="intervaloMinimoHoras">Intervalo Mínimo (horas)</label>
+								<input type="number" id="intervaloMinimoHoras" class="form-control" min="1" placeholder="Ex: 6">
+							</div>
+							<div class="input-group">
+								<label for="tipoIntervencao">Tipo de Intervenção</label>
+								<input type="text" id="tipoIntervencao" class="form-control" placeholder="Ex: Tratamento antifúngico">
+							</div>
+							<div class="input-group">
+								<label for="dosagemOuIntensidade">Dosagem ou Intensidade</label>
+								<input type="text" id="dosagemOuIntensidade" class="form-control" placeholder="Ex: 20ml/L">
+							</div>
+						</div>
+					</div>
+					<div id="pontual-fields" class="d-none">
+						<h3 class="section-title">Plano Pontual</h3>
+						<div class="input-group">
+							<label for="finalidadePontual">Finalidade da Intervenção</label>
+							<textarea id="finalidadePontual" class="form-control" rows="3" placeholder="Ex: Aplicação única para corrigir défice nutricional observado"></textarea>
+						</div>
+					</div>
+					<div id="modal-alert" class="alert"></div>
+					<div class="form-actions mt-6">
+						<button type="submit" id="submit-btn" class="btn btn-primary w-full">Guardar Plano</button>
+					</div>
+				</form>
+			</div>
+		</div>
+		<script type="module" src="/js/service-worker-register.js"></script>
+		<script type="module" src="/js/components/sidebar.js"></script>
+		<script type="module" src="planos.js"></script>
+	</body>
+</html>

@@ -1,0 +1,35 @@
+.section-divider {
+	border-bottom: 1px solid var(--border);
+	padding-bottom: 0.5rem;
+}
+
+.import-modal-card {
+	max-width: 500px;
+	width: 100%;
+	box-sizing: border-box;
+}
+
+.import-form {
+	width: 100%;
+}
+
+.import-help {
+	background-color: #f8fafc;
+	border: 1px solid #e2e8f0;
+	padding: 0.85rem;
+	border-radius: 6px;
+	box-sizing: border-box;
+}
+
+.import-help-title {
+	margin: 0 0 0.5rem 0;
+}
+
+.import-help-content {
+	display: block;
+	line-height: 1.8;
+	margin-bottom: 0.75rem;
+	word-break: break-all;
+	overflow-wrap: break-word;
+	font-family: monospace;
+}
