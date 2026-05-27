@@ -5,6 +5,13 @@ import { openModal, closeModal, setupModalCloseButtons } from '/js/utils/modal.j
 document.addEventListener('DOMContentLoaded', () => {
 	setupModalCloseButtons()
 
+	const addBtn = document.getElementById('add-btn')
+	if (addBtn) addBtn.addEventListener('click', () => {
+		const form = document.getElementById('modal-form')
+		if (form) form.reset()
+		openModal('modal')
+	})
+
 	const tbody = document.getElementById('table-body')
 	const forms = {
 		criar: document.getElementById('modal-form'),

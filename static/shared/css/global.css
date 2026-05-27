@@ -553,6 +553,15 @@ select.form-control {
 	box-shadow: var(--shadow-card);
 }
 
+.table-container>h2 {
+	margin: 0;
+	padding: 1rem 1.5rem;
+	border-bottom: 1px solid var(--border);
+	background: transparent;
+	font-weight: 700;
+	color: var(--green-950);
+}
+
 .table {
 	width: 100%;
 	border-collapse: collapse;
