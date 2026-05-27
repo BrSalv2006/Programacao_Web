@@ -18,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	let planos = []
 	let ervasOptions = []
 	let editingId = null
+	let userRole = sessionStorage.getItem('role') || 'Pendente'
+	let podeAprovar = ['Administrador', 'Responsável'].includes(userRole)
 
 	const tipoLabels = {
 		regular: 'Regular',
@@ -76,8 +78,23 @@ document.addEventListener('DOMContentLoaded', () => {
 		colheitaNoFimInput.disabled = hasFrequencia
 	}
 
+	async function loadUserRole() {
+		try {
+			const res = await apiFetch('/api/auth/me')
+			const data = await res.json()
+			if (res.ok && data.success) {
+				userRole = data.data.role
+				sessionStorage.setItem('role', userRole)
+			}
+		} catch {
+			userRole = sessionStorage.getItem('role') || 'Pendente'
+		}
+		podeAprovar = ['Administrador', 'Responsável'].includes(userRole)
+	}
+
 	async function loadBaseData() {
 		try {
+			await loadUserRole()
 			const ervasResponse = await apiFetch('/api/ervas?view=planos')
 			const ervasData = await ervasResponse.json()
 			if (ervasData.success) {
@@ -149,6 +166,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const renderPontualRow = (plano) => {
 			const ervaNome = plano.ervaId ? plano.ervaId.nome : 'N/A'
+			const autorizado = Boolean(plano.autorizadoPor && plano.dataAutorizacao)
+			const estadoLabel = autorizado ? 'Autorizado' : 'Pendente'
+			const approveBtn = (!autorizado && podeAprovar)
+				? `<button class="action-btn approve-btn" data-id="${plano._id}" title="Aprovar">Aprovar</button>`
+				: ''
 
 			return `
 			<tr>
@@ -156,6 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				<td>${ervaNome}</td>
 				<td>${plano.finalidadePontual || 'N/A'}</td>
 				<td>
+					<span class="text-xs color-muted">${estadoLabel}</span>
+					${approveBtn}
 					<button class="action-btn edit-btn" data-id="${plano._id}" title="Editar">Editar</button>
 				</td>
 			</tr>
@@ -173,6 +197,25 @@ document.addEventListener('DOMContentLoaded', () => {
 		document.querySelectorAll('.edit-btn').forEach(button => {
 			button.addEventListener('click', () => openFormModal(button.dataset.id))
 		})
+		document.querySelectorAll('.approve-btn').forEach(button => {
+			button.addEventListener('click', () => aprovarPlano(button.dataset.id))
+		})
+	}
+
+	async function aprovarPlano(planoId) {
+		try {
+			const response = await apiFetch(`/api/planos/${planoId}/aprovar`, { method: 'PATCH' })
+			const data = await response.json()
+
+			if (response.ok && data.success) {
+				showAlert('page-alert', 'Plano pontual aprovado com sucesso.', 'success')
+				await loadPlanos()
+			} else {
+				throw new Error(data.message || 'Erro ao aprovar plano pontual.')
+			}
+		} catch (error) {
+			showAlert('page-alert', error.message, 'error')
+		}
 	}
 
 	function openFormModal(id = null) {

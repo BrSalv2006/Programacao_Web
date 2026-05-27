@@ -92,7 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				? `<button class="action-btn hist-btn" data-id="${lote._id}">Ver Histórico</button>`
 				: '<span class="text-xs color-muted">Sem histórico</span>'
 
-			// Adicionado o botão "Ver Detalhes" para o Resumo
 			const btnResumo = `<button class="action-btn resumo-btn text-bold color-primary" data-id="${lote._id}">Ver Detalhes</button>`
 
 			const acoesHtml = lote.estado === 'ativo'
@@ -257,7 +256,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		} catch (error) { showAlert('comprometer-alert', error.message, 'error') }
 	})
 
-	// Função para abrir o resumo usando as novas classes CSS em vez de inline styles
 	async function abrirResumoLote(id) {
 		openModal('resumo-modal')
 		const dataContainer = document.getElementById('resumo-data')

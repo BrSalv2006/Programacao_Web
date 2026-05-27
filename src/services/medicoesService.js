@@ -50,7 +50,7 @@ export function avaliarCondicoesPlano(medicao, condicoes = {}) {
 	if (valorValido(condicoes.luminosidadeMin) && medicao.luminosidade < condicoes.luminosidadeMin)
 		problemas.push({ tipo: 'luminosidade_baixa', msg: `Luminosidade baixa: Real ${medicao.luminosidade}lux, Min Esperado: ${condicoes.luminosidadeMin}lux` })
 
-	return problemas // Agora retorna objetos com a mensagem detalhada (Real vs Esperado)
+	return problemas
 }
 
 export function escolherAcaoAutomacao(problemas) {
@@ -111,7 +111,6 @@ export async function processarNovaMedicao(body, user) {
 			const dataAgendada = obterDataAgendadaPreferencial(horarioPreferencial)
 
 			if (lote.modo === 'Automático') {
-				// Simulação de Hardware IoT para os 100% de automação
 				const hardwarePayload = {
 					dispositivoId: `ATUADOR-${lote._id.toString().substring(0, 6).toUpperCase()}`,
 					comando: acao.tarefa.toUpperCase(),

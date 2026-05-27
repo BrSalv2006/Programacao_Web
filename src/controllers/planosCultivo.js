@@ -4,7 +4,8 @@ import asyncHandler from '../middleware/asyncHandler.js'
 import {
 	listarPlanos,
 	criarPlano,
-	atualizarPlano
+	atualizarPlano,
+	aprovarPlanoPontual
 } from '../services/planosCultivoService.js'
 
 const router = express.Router()
@@ -14,13 +15,18 @@ router.get('/', asyncHandler(async (req, res) => {
 	res.status(200).json({ success: true, data: planos })
 }))
 
-router.post('/', requireRole('Administrador', 'Responsável'), asyncHandler(async (req, res) => {
+router.post('/', asyncHandler(async (req, res) => {
 	const resultado = await criarPlano(req.body, req.user)
 	res.status(resultado.status).json(resultado.payload)
 }))
 
-router.patch('/:id', requireRole('Administrador', 'Responsável'), asyncHandler(async (req, res) => {
+router.patch('/:id', asyncHandler(async (req, res) => {
 	const resultado = await atualizarPlano(req.params.id, req.body, req.user)
+	res.status(resultado.status).json(resultado.payload)
+}))
+
+router.patch('/:id/aprovar', requireRole('Administrador', 'Responsável'), asyncHandler(async (req, res) => {
+	const resultado = await aprovarPlanoPontual(req.params.id, req.user)
 	res.status(resultado.status).json(resultado.payload)
 }))
 
