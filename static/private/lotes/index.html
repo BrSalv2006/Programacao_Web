@@ -17,7 +17,7 @@
 				</div>
 				<div class="topbar-actions">
 					<button id="export-btn" class="btn btn-secondary">Exportar CSV</button>
-					<button id="add-btn" class="btn btn-primary">+ Novo Lote</button>
+					<button id="add-btn" class="btn btn-primary" data-open-modal="modal">+ Novo Lote</button>
 				</div>
 			</header>
 			<div id="page-alert" class="alert mb-4"></div>
@@ -46,8 +46,8 @@
 		<div id="modal" class="modal">
 			<div class="card modal-card max-w-500">
 				<div class="modal-header">
-					<h2 id="modal-title" class="text-lg text-bold color-dark">Novo Lote</h2>
-					<button type="button" id="close-modal" class="close-btn">&times;</button>
+					<h2 class="text-lg text-bold color-dark">Novo Lote</h2>
+					<button type="button" class="close-btn" data-close-modal="modal" data-reset-form="modal-form">&times;</button>
 				</div>
 				<form id="modal-form">
 					<div id="modal-alert" class="alert"></div>
@@ -85,7 +85,7 @@
 			<div class="card modal-card max-w-400">
 				<div class="modal-header">
 					<h2 class="text-lg text-bold color-dark">Dividir Lote</h2>
-					<button type="button" id="close-dividir" class="close-btn">&times;</button>
+					<button type="button" class="close-btn" data-close-modal="dividir-modal" data-reset-form="dividir-form">&times;</button>
 				</div>
 				<form id="dividir-form">
 					<div id="dividir-alert" class="alert"></div>
@@ -106,7 +106,7 @@
 			<div class="card modal-card max-w-400">
 				<div class="modal-header">
 					<h2 class="text-lg text-bold color-dark">Concluir Lote</h2>
-					<button type="button" id="close-concluir" class="close-btn">&times;</button>
+					<button type="button" class="close-btn" data-close-modal="concluir-modal" data-reset-form="concluir-form">&times;</button>
 				</div>
 				<form id="concluir-form">
 					<div id="concluir-alert" class="alert"></div>
@@ -123,7 +123,7 @@
 			<div class="card modal-card max-w-400">
 				<div class="modal-header">
 					<h2 class="text-lg text-bold color-dark">Alterar Plano de Cultivo</h2>
-					<button type="button" id="close-alterar-plano" class="close-btn">&times;</button>
+					<button type="button" class="close-btn" data-close-modal="alterar-plano-modal" data-reset-form="alterar-plano-form">&times;</button>
 				</div>
 				<form id="alterar-plano-form">
 					<div id="alterar-plano-alert" class="alert"></div>
@@ -142,7 +142,7 @@
 			<div class="card modal-card max-w-500">
 				<div class="modal-header">
 					<h2 class="text-lg text-bold color-dark">Histórico de Planos</h2>
-					<button type="button" id="close-historico" class="close-btn">&times;</button>
+					<button type="button" class="close-btn" data-close-modal="historico-modal">&times;</button>
 				</div>
 				<div id="historico-content" class="mt-4"></div>
 			</div>
@@ -151,7 +151,7 @@
 			<div class="card modal-card max-w-400">
 				<div class="modal-header">
 					<h2 class="text-lg text-bold color-dark">Registar Perdas</h2>
-					<button type="button" id="close-perdas" class="close-btn">&times;</button>
+					<button type="button" class="close-btn" data-close-modal="perdas-modal" data-reset-form="perdas-form">&times;</button>
 				</div>
 				<form id="perdas-form">
 					<div id="perdas-alert" class="alert"></div>
@@ -168,13 +168,26 @@
 			<div class="card modal-card max-w-400">
 				<div class="modal-header">
 					<h2 class="text-lg text-bold color-danger">Comprometer Lote</h2>
-					<button type="button" id="close-comprometer" class="close-btn">&times;</button>
+					<button type="button" class="close-btn" data-close-modal="comprometer-modal" data-reset-form="comprometer-form">&times;</button>
 				</div>
 				<form id="comprometer-form">
 					<div id="comprometer-alert" class="alert"></div>
 					<p class="text-sm color-muted mb-4">Selecione esta opção caso o lote tenha sido fatalmente afetado. O lote será encerrado e registado como perda total.</p>
 					<div class="form-actions"><button type="submit" class="btn btn-primary w-full border-danger color-danger">Declarar Comprometido</button></div>
 				</form>
+			</div>
+		</div>
+		<div id="resumo-modal" class="modal">
+			<div class="card modal-card max-w-800 scrollable-y">
+				<div class="modal-header">
+					<h2 class="text-lg text-bold color-dark">Resumo e Detalhes do Lote</h2>
+					<button type="button" class="close-btn" data-close-modal="resumo-modal">&times;</button>
+				</div>
+				<div id="resumo-content" class="mt-4">
+					<div id="resumo-loading" class="text-center color-muted py-4">A carregar informações...</div>
+					<div id="resumo-data" class="d-none">
+					</div>
+				</div>
 			</div>
 		</div>
 		<script type="module" src="/js/service-worker-register.js"></script>

@@ -819,3 +819,55 @@ select.form-control {
 	flex-wrap: nowrap;
 	white-space: nowrap;
 }
+
+.max-w-800 {
+	max-width: 800px;
+	margin: 0 auto;
+}
+
+.scrollable-y {
+	max-height: 90vh;
+	overflow-y: auto;
+}
+
+.bg-light-rounded {
+	background: #f8f9fa;
+	border-radius: 8px;
+}
+
+.alerta-card {
+	padding: 10px;
+	background: #ffffff;
+	margin-bottom: 8px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.border-left-danger {
+	border-left: 4px solid var(--danger-text);
+}
+
+.border-left-warning {
+	border-left: 4px solid var(--warning-border);
+}
+
+.list-disc {
+	list-style-type: disc;
+	margin-left: 20px;
+}
+
+.overflow-x-auto {
+	overflow-x: auto;
+}
+
+.py-4 {
+	padding-top: 1.5rem;
+	padding-bottom: 1.5rem;
+}
+
+.border-bottom {
+	border-bottom: 1px solid var(--border);
+}
+
+.pb-1 {
+	padding-bottom: 0.25rem;
+}

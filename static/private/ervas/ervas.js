@@ -1,19 +1,15 @@
 import { apiFetch } from '/js/storage/api.js'
 import { showAlert, hideAlert } from '/js/utils/alert.js'
+import { openModal, closeModal, setupModalCloseButtons } from '/js/utils/modal.js'
 
 document.addEventListener('DOMContentLoaded', () => {
+	setupModalCloseButtons()
+
 	const tbody = document.getElementById('table-body')
-	const modal = document.getElementById('modal')
 	const form = document.getElementById('modal-form')
 	const addBtn = document.getElementById('add-btn')
-	const closeModalBtn = document.getElementById('close-modal')
-	const importModal = document.getElementById('import-modal')
 	const importBtn = document.getElementById('import-btn')
-	const closeImportBtn = document.getElementById('close-import')
 	const importForm = document.getElementById('import-form')
-
-	const descModal = document.getElementById('desc-modal')
-	const closeDescModalBtn = document.getElementById('close-desc-modal')
 
 	let ervas = []
 	let editingId = null
@@ -61,7 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		`).join('')
 
 		document.querySelectorAll('.edit-btn').forEach(btn => {
-			btn.addEventListener('click', () => openModal(btn.dataset.id))
+			btn.addEventListener('click', () => openFormModal(btn.dataset.id))
 		})
 
 		document.querySelectorAll('.deactivate-btn').forEach(btn => {
@@ -77,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const erva = ervas.find(e => e._id === btn.dataset.id)
 				if (erva && erva.descricao) {
 					document.getElementById('desc-text').textContent = erva.descricao
-					descModal.classList.add('open')
+					openModal('desc-modal')
 				}
 			})
 		})
@@ -125,18 +121,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function showConfirm(msg) {
 		return new Promise(resolve => {
-			const confirmModal = document.getElementById('confirm-modal')
 			const confirmMessage = document.getElementById('confirm-message')
 			const confirmYes = document.getElementById('confirm-yes')
 			const confirmNo = document.getElementById('confirm-no')
 
 			confirmMessage.textContent = msg
-			confirmModal.classList.add('open')
+			openModal('confirm-modal')
 
 			const cleanup = () => {
 				confirmYes.removeEventListener('click', handleYes)
 				confirmNo.removeEventListener('click', handleNo)
-				confirmModal.classList.remove('open')
+				closeModal('confirm-modal')
 			}
 
 			const handleYes = () => {
@@ -154,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		})
 	}
 
-	function openModal(id = null) {
+	function openFormModal(id = null) {
 		hideAlert('modal-alert')
 		form.reset()
 		editingId = id
@@ -182,15 +177,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			document.getElementById('modal-title').textContent = 'Nova Erva Aromática'
 		}
 
-		modal.classList.add('open')
+		openModal('modal')
 	}
 
-	addBtn.addEventListener('click', () => openModal())
-	closeModalBtn.addEventListener('click', () => modal.classList.remove('open'))
-	closeDescModalBtn.addEventListener('click', () => descModal.classList.remove('open'))
-
-	importBtn.addEventListener('click', () => importModal.classList.add('open'))
-	closeImportBtn.addEventListener('click', () => importModal.classList.remove('open'))
+	addBtn.addEventListener('click', () => openFormModal())
+	importBtn.addEventListener('click', () => openModal('import-modal'))
 
 	form.addEventListener('submit', async (e) => {
 		e.preventDefault()
@@ -226,7 +217,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const data = await response.json()
 			if (response.ok && data.success) {
 				form.reset()
-				modal.classList.remove('open')
+				closeModal('modal', 'modal-form')
 				loadErvas()
 			} else {
 				throw new Error(data.message || 'Erro ao guardar dados.')
@@ -258,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			})
 			const data = await response.json()
 			if (response.ok && data.success) {
-				importModal.classList.remove('open')
+				closeModal('import-modal', 'import-form')
 				showAlert('page-alert', data.message, 'success')
 				loadErvas()
 			} else {

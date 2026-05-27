@@ -1,14 +1,15 @@
 import { apiFetch } from '/js/storage/api.js'
 import { showAlert, hideAlert } from '/js/utils/alert.js'
+import { openModal, closeModal, setupModalCloseButtons } from '/js/utils/modal.js'
 
 document.addEventListener('DOMContentLoaded', () => {
+	setupModalCloseButtons()
+
 	const tbodyRegular = document.getElementById('table-regular-body')
 	const tbodyEmergencia = document.getElementById('table-emergencia-body')
 	const tbodyPontual = document.getElementById('table-pontual-body')
-	const modal = document.getElementById('modal')
 	const form = document.getElementById('modal-form')
 	const addButton = document.getElementById('add-btn')
-	const closeModalButton = document.getElementById('close-modal')
 	const ervaSelect = document.getElementById('ervaId')
 	const tipoSelect = document.getElementById('tipo')
 	const colheitaFrequenciaInput = document.getElementById('colheitaFrequenciaHoras')
@@ -170,11 +171,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		tbodyEmergencia.innerHTML = renderRows(planos.filter(p => p.tipo === 'emergência'), renderEmergenciaRow, 6)
 		tbodyPontual.innerHTML = renderRows(planos.filter(p => p.tipo === 'pontual'), renderPontualRow, 4)
 		document.querySelectorAll('.edit-btn').forEach(button => {
-			button.addEventListener('click', () => openModal(button.dataset.id))
+			button.addEventListener('click', () => openFormModal(button.dataset.id))
 		})
 	}
 
-	function openModal(id = null) {
+	function openFormModal(id = null) {
 		hideAlert('modal-alert')
 		form.reset()
 		editingId = id
@@ -219,7 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		updateTypeFields()
-		modal.classList.add('open')
+		openModal('modal')
 	}
 
 	ervaSelect.addEventListener('change', (e) => {
@@ -243,8 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	})
 
-	addButton.addEventListener('click', () => openModal())
-	closeModalButton.addEventListener('click', () => modal.classList.remove('open'))
+	addButton.addEventListener('click', () => openFormModal())
 	tipoSelect.addEventListener('change', updateTypeFields)
 	colheitaNoFimInput.addEventListener('change', syncColheitaInputs)
 	colheitaFrequenciaInput.addEventListener('input', () => {
@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (response.ok && data.success) {
 				form.reset()
-				modal.classList.remove('open')
+				closeModal('modal', 'modal-form')
 				loadPlanos()
 			} else {
 				throw new Error(data.message || 'Erro ao guardar dados.')
