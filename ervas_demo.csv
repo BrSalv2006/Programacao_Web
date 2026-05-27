@@ -1,0 +1,13 @@
+nome,nomeCientifico,variedade,familia,cicloDiasFim,descricao,temperaturaMin,temperaturaMax,humidadeMin,humidadeMax,luminosidadeMin,luminosidadeMax,ativo
+"Manjericão","Ocimum basilicum","Genovese","Lamiaceae",60,"Erva muito aromática com folhas tenras ideal para pesto e pratos italianos.",18,30,50,70,40000,80000,1
+"Salsa","Petroselinum crispum","Lisa","Apiaceae",70,"Planta de folhas verdes escuras e lisas muito versátil na culinária europeia.",10,26,60,80,20000,60000,1
+"Coentros","Coriandrum sativum","Comum","Apiaceae",50,"Sabor cítrico e picante indispensável na culinária ibérica asiática e sul-americana.",15,25,50,75,20000,50000,1
+"Hortelã","Mentha spicata","Verde","Lamiaceae",90,"Crescimento vigoroso com aroma refrescante excelente para infusões e sobremesas.",12,28,60,85,15000,40000,1
+"Alecrim","Salvia rosmarinus","Erecto","Lamiaceae",120,"Arbusto perene resistente à seca com folhas agulhadas e aroma amadeirado.",10,30,40,60,50000,100000,1
+"Tomilho","Thymus vulgaris","Vulgar","Lamiaceae",85,"Erva rústica de sabor intenso e terroso excelente para carnes assadas e guisados.",15,28,40,65,50000,90000,1
+"Cebolinho","Allium schoenoprasum","Fino","Amaryllidaceae",60,"Sabor suave semelhante a cebola ideal para finalizações a fresco em pratos.",10,25,50,70,20000,60000,1
+"Oregãos","Origanum vulgare","Grego","Lamiaceae",90,"Clássico mediterrânico muito resistente cujo sabor se intensifica quando seco.",15,28,40,65,40000,80000,1
+"Louro","Laurus nobilis","Comum","Lauraceae",365,"Folhas rijas e muito aromáticas usadas predominantemente secas em estufados e caldos.",10,32,40,70,40000,80000,1
+"Salva","Salvia officinalis","Comum","Lamiaceae",75,"Folhas aveludadas com sabor forte e terroso ideal para pratos de carne e queijos.",15,30,40,70,40000,80000,1
+"Estragão","Artemisia dracunculus","Francês","Asteraceae",80,"Sabor delicado a anis fundamental na culinária clássica francesa.",12,24,50,70,25000,60000,1
+"Endro","Anethum graveolens","Comum","Apiaceae",65,"Folhas finas com sabor leve a anis excelente para peixes e picles.",15,25,50,75,40000,80000,1
