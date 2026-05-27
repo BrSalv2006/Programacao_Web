@@ -117,7 +117,7 @@ export async function processarNovaMedicao(body, user) {
 					parametros: acao.descricao,
 					timestamp: new Date().toISOString()
 				}
-				console.log(`[SIMULAÇÃO HARDWARE IoT] -> Comando enviado:`, hardwarePayload)
+				console.log('[SIMULAÇÃO HARDWARE IoT] -> Comando enviado:', hardwarePayload)
 
 				const tarefa = await Tarefa.create({
 					loteId: lote._id,
