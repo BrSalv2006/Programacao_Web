@@ -45,8 +45,8 @@ const schema = new mongoose.Schema({
 	tarefasOperacionais: {
 		tiposPermitidos: {
 			type: [String],
-			enum: ['rega', 'fertilização', 'colheita', 'monitorização'],
-			default: ['rega', 'fertilização', 'colheita', 'monitorização']
+			enum: ['rega', 'fertilização', 'colheita', 'monitorização', 'climatização', 'iluminação'],
+			default: ['rega', 'fertilização', 'colheita', 'monitorização', 'climatização', 'iluminação']
 		},
 		regaFrequenciaHoras: {
 			type: Number,

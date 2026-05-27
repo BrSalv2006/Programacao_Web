@@ -52,11 +52,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		tbody.innerHTML = tarefas.map(t => {
 			const dataFormatada = new Date(t.dataAgendada).toLocaleDateString('pt-PT', { hour: '2-digit', minute: '2-digit' })
 			const tipo = (t.tipo || '').charAt(0).toUpperCase() + (t.tipo || '').slice(1)
+			const descricao = t.descricao ? t.descricao : ''
 			let estadoLabel = t.estado
 
 			return `
 				<tr>
 					<td class="text-bold color-dark">${tipo}</td>
+    				<td class="text-sm color-muted">${descricao}</td>
 					<td class="text-xs color-muted">${t.loteId?._id || 'N/A'}</td>
 					<td>${dataFormatada}</td>
 					<td><span class="alert-badge badge-${t.estado === 'Pendente' ? 'Aviso' : (t.estado === 'Expirada' ? 'Critico' : 'Informativo')}">${t.estado}</span></td>
