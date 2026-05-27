@@ -38,6 +38,25 @@
 					</div>
 				</form>
 			</div>
+			<section class="table-container mt-6">
+				<h2 class="text-lg text-bold mb-4 color-dark">Histórico de Medições</h2>
+				<table class="table">
+					<thead>
+						<tr>
+							<th>Data/Hora</th>
+							<th>Temperatura</th>
+							<th>Humidade</th>
+							<th>Luminosidade</th>
+							<th>Falha Sensor</th>
+						</tr>
+					</thead>
+					<tbody id="medicoes-table-body">
+						<tr>
+							<td colspan="5" class="color-muted text-center">Selecione um lote para ver medições.</td>
+						</tr>
+					</tbody>
+				</table>
+			</section>
 		</main>
 		<script type="module" src="/js/service-worker-register.js"></script>
 		<script type="module" src="/js/components/sidebar.js"></script>

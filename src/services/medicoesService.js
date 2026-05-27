@@ -122,17 +122,30 @@ export async function processarNovaMedicao(body, user) {
 				const tarefa = await Tarefa.create({
 					loteId: lote._id,
 					tipo: acao.tarefa,
-					estado: 'Executada',
-					dataAgendada: dataAgendada,
-					dataExecucao: new Date()
+					estado: 'Pendente',
+					dataAgendada: dataAgendada
 				})
+
+				await LogAuditoria.create({
+					utilizadorId: user._id,
+					acao: 'CRIAR_TAREFA_AUTOMATICA',
+					entidade: 'Tarefa',
+					entidadeId: tarefa._id,
+					detalhes: { acao: acao.descricao, problemas: mensagens, modo: lote.modo }
+				})
+
+				const agora = new Date()
+				tarefa.estado = 'Executada'
+				tarefa.dataExecucao = agora
+				tarefa.responsavelId = user?._id
+				await tarefa.save()
 
 				await LogAuditoria.create({
 					utilizadorId: user._id,
 					acao: 'EXECUTAR_AUTOMACAO',
 					entidade: 'Tarefa',
 					entidadeId: tarefa._id,
-					detalhes: { acao: acao.descricao, problemas: mensagens, modo: lote.modo, emulacaoIoT: hardwarePayload }
+					detalhes: { acao: acao.descricao, problemas: mensagens, modo: lote.modo, emulacaoIoT: hardwarePayload, dataExecucao: agora }
 				})
 			} else {
 				const tarefa = await Tarefa.create({

@@ -1,5 +1,7 @@
 import LoteCultivo from '../models/loteCultivo.js'
+import Tarefa from '../models/tarefa.js'
 import { gerarTarefasAutomaticas } from './lotesService.js'
+import { atualizarEstadoTarefasPendentes } from './tarefasService.js'
 
 export async function gerarTarefasDiarias() {
 	const lotesAtivos = await LoteCultivo.find({ estado: 'ativo' }).select('_id planoId estado')
@@ -22,4 +24,24 @@ export function agendarGeracaoDiaria() {
 		await gerarTarefasDiarias()
 		setInterval(gerarTarefasDiarias, 24 * 60 * 60 * 1000)
 	}, msAteMeiaNoite)
+}
+
+export async function executarAutomacoesPendentes() {
+	const tarefasPendentes = await Tarefa.find({ estado: 'Pendente' }).populate({
+		path: 'loteId',
+		populate: { path: 'planoId' }
+	})
+
+	if (!tarefasPendentes.length) return
+
+	const agora = new Date()
+	await atualizarEstadoTarefasPendentes(tarefasPendentes, null, agora)
+}
+
+export function agendarExecucaoAutomatica(intervaloMs = 60 * 1000) {
+	setInterval(() => {
+		executarAutomacoesPendentes().catch(error => {
+			console.error('Falha ao executar automacoes pendentes:', error.message)
+		})
+	}, intervaloMs)
 }

@@ -16,6 +16,7 @@ import errorHandler from './src/middleware/errorHandler.js'
 // Config
 import { validateEnv } from './src/config/env.js'
 import { connectDB, disconnectDB } from './src/config/db.js'
+import { agendarExecucaoAutomatica, agendarGeracaoDiaria } from './src/services/schedulerService.js'
 
 // Routes
 import apiRouter from './src/routes/api.js'
@@ -49,6 +50,8 @@ connectDB().then(() => {
 		console.log(`Server is listening on port ${PORT}.`)
 		console.log(`Environment: ${process.env.NODE_ENV || 'development'}`)
 	})
+	agendarGeracaoDiaria()
+	agendarExecucaoAutomatica()
 }).catch((error) => {
 	console.error('Erro crítico ao iniciar a aplicação:', error)
 	process.exit(1)
