@@ -35,20 +35,28 @@ export function avaliarFalhasSensor(medicao) {
 export function avaliarCondicoesPlano(medicao, condicoes = {}) {
 	const problemas = []
 
-	if (valorValido(condicoes.temperaturaMax) && medicao.temperatura > condicoes.temperaturaMax) problemas.push('Temperatura alta')
-	if (valorValido(condicoes.temperaturaMin) && medicao.temperatura < condicoes.temperaturaMin) problemas.push('Temperatura baixa')
-	if (valorValido(condicoes.humidadeMax) && medicao.humidade > condicoes.humidadeMax) problemas.push('Humidade alta')
-	if (valorValido(condicoes.humidadeMin) && medicao.humidade < condicoes.humidadeMin) problemas.push('Humidade baixa')
-	if (valorValido(condicoes.luminosidadeMax) && medicao.luminosidade > condicoes.luminosidadeMax) problemas.push('Luminosidade alta')
-	if (valorValido(condicoes.luminosidadeMin) && medicao.luminosidade < condicoes.luminosidadeMin) problemas.push('Luminosidade baixa')
+	if (valorValido(condicoes.temperaturaMax) && medicao.temperatura > condicoes.temperaturaMax)
+		problemas.push({ tipo: 'temperatura_alta', msg: `Temperatura alta: Real ${medicao.temperatura}ºC, Max Esperado: ${condicoes.temperaturaMax}ºC` })
+	if (valorValido(condicoes.temperaturaMin) && medicao.temperatura < condicoes.temperaturaMin)
+		problemas.push({ tipo: 'temperatura_baixa', msg: `Temperatura baixa: Real ${medicao.temperatura}ºC, Min Esperado: ${condicoes.temperaturaMin}ºC` })
 
-	return problemas
+	if (valorValido(condicoes.humidadeMax) && medicao.humidade > condicoes.humidadeMax)
+		problemas.push({ tipo: 'humidade_alta', msg: `Humidade alta: Real ${medicao.humidade}%, Max Esperado: ${condicoes.humidadeMax}%` })
+	if (valorValido(condicoes.humidadeMin) && medicao.humidade < condicoes.humidadeMin)
+		problemas.push({ tipo: 'humidade_baixa', msg: `Humidade baixa: Real ${medicao.humidade}%, Min Esperado: ${condicoes.humidadeMin}%` })
+
+	if (valorValido(condicoes.luminosidadeMax) && medicao.luminosidade > condicoes.luminosidadeMax)
+		problemas.push({ tipo: 'luminosidade_alta', msg: `Luminosidade alta: Real ${medicao.luminosidade}lux, Max Esperado: ${condicoes.luminosidadeMax}lux` })
+	if (valorValido(condicoes.luminosidadeMin) && medicao.luminosidade < condicoes.luminosidadeMin)
+		problemas.push({ tipo: 'luminosidade_baixa', msg: `Luminosidade baixa: Real ${medicao.luminosidade}lux, Min Esperado: ${condicoes.luminosidadeMin}lux` })
+
+	return problemas // Agora retorna objetos com a mensagem detalhada (Real vs Esperado)
 }
 
 export function escolherAcaoAutomacao(problemas) {
-	if (problemas.includes('Humidade baixa')) return { tarefa: 'rega', descricao: 'Ativar rega' }
-	if (problemas.includes('Temperatura alta')) return { tarefa: 'monitorização', descricao: 'Ajustar ventilação' }
-	if (problemas.some(problema => problema.includes('Luminosidade'))) return { tarefa: 'monitorização', descricao: 'Ajustar luminosidade' }
+	if (problemas.some(p => p.tipo === 'humidade_baixa')) return { tarefa: 'rega', descricao: 'Ativar sistema de rega/aspersão' }
+	if (problemas.some(p => p.tipo.includes('temperatura'))) return { tarefa: 'monitorização', descricao: 'Ajustar sistema de climatização' }
+	if (problemas.some(p => p.tipo.includes('luminosidade'))) return { tarefa: 'monitorização', descricao: 'Ajustar iluminação/estores' }
 	return { tarefa: 'monitorização', descricao: 'Verificar condições ambientais' }
 }
 
@@ -86,21 +94,32 @@ export async function processarNovaMedicao(body, user) {
 	}
 
 	if (lote && lote.planoId && lote.planoId.condicoesIdeais && falhasSensor.length === 0) {
-		const problemas = avaliarCondicoesPlano(novaMedicao, lote.planoId.condicoesIdeais)
+		const problemasDocs = avaliarCondicoesPlano(novaMedicao, lote.planoId.condicoesIdeais)
 
-		if (problemas.length > 0) {
-			const acao = escolherAcaoAutomacao(problemas)
+		if (problemasDocs.length > 0) {
+			const mensagens = problemasDocs.map(p => p.msg)
+			const acao = escolherAcaoAutomacao(problemasDocs)
+
 			await Alerta.create({
 				loteId: lote._id,
 				medicaoId: novaMedicao._id,
-				nivel: problemas.some(p => p.includes('alta') || p.includes('baixa')) ? 'Crítico' : 'Aviso',
-				tipo: problemas.join(', ')
+				nivel: problemasDocs.some(p => p.tipo.includes('alta') || p.tipo.includes('baixa')) ? 'Crítico' : 'Aviso',
+				tipo: mensagens.join(' | ')
 			})
 
 			const horarioPreferencial = lote.planoId?.tarefasOperacionais?.horarioPreferencial
 			const dataAgendada = obterDataAgendadaPreferencial(horarioPreferencial)
 
 			if (lote.modo === 'Automático') {
+				// Simulação de Hardware IoT para os 100% de automação
+				const hardwarePayload = {
+					dispositivoId: `ATUADOR-${lote._id.toString().substring(0, 6).toUpperCase()}`,
+					comando: acao.tarefa.toUpperCase(),
+					parametros: acao.descricao,
+					timestamp: new Date().toISOString()
+				}
+				console.log(`[SIMULAÇÃO HARDWARE IoT] -> Comando enviado:`, hardwarePayload)
+
 				const tarefa = await Tarefa.create({
 					loteId: lote._id,
 					tipo: acao.tarefa,
@@ -114,7 +133,7 @@ export async function processarNovaMedicao(body, user) {
 					acao: 'EXECUTAR_AUTOMACAO',
 					entidade: 'Tarefa',
 					entidadeId: tarefa._id,
-					detalhes: { acao: acao.descricao, problemas, modo: lote.modo }
+					detalhes: { acao: acao.descricao, problemas: mensagens, modo: lote.modo, emulacaoIoT: hardwarePayload }
 				})
 			} else {
 				const tarefa = await Tarefa.create({
@@ -136,7 +155,7 @@ export async function processarNovaMedicao(body, user) {
 					acao: 'SUGERIR_AUTOMACAO',
 					entidade: 'Tarefa',
 					entidadeId: tarefa._id,
-					detalhes: { acao: acao.descricao, problemas, modo: lote.modo }
+					detalhes: { acao: acao.descricao, problemas: mensagens, modo: lote.modo }
 				})
 			}
 		}
