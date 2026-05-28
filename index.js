@@ -31,7 +31,7 @@ const PORT = Number.parseInt(process.env.PORT, 10) || 3000
 app.disable('x-powered-by')
 app.use(securityHeaders)
 app.use(cors)
-app.use(rateLimiter)
+//app.use(rateLimiter)
 app.use(compression())
 app.use(logger)
 app.use(express.json())
