@@ -38,9 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		tbody.innerHTML = alertas.map(a => {
 			const d = new Date(a.createdAt).toLocaleString('pt-PT')
+			const loteNome = a.loteId.nome || 'N/A'
+
 			return `
                         <tr>
                             <td>${d}</td>
+							<td><strong>${loteNome}</strong></td>
                             <td class="text-bold">${a.tipo}</td>
                             <td><span class="alert-badge badge-${a.nivel}">${a.nivel}</span></td>
                             <td>${a.estado}</td>

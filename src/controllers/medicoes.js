@@ -38,7 +38,7 @@ router.get('/alertas', asyncHandler(async (req, res) => {
 		return res.status(200).json({ success: true, data: alertas })
 	}
 
-	const alertas = await Alerta.find().sort({ createdAt: -1 })
+	const alertas = await Alerta.find().populate('loteId', 'nome').sort({ createdAt: -1 })
 	res.status(200).json({ success: true, data: alertas })
 }))
 
