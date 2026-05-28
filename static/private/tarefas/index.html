@@ -26,6 +26,7 @@
 					<thead>
 						<tr>
 							<th>Tipo</th>
+							<th>Descrição</th>
 							<th>Lote ID</th>
 							<th>Agendamento</th>
 							<th>Estado</th>
@@ -44,7 +45,7 @@
 			<div class="card modal-card max-w-450">
 				<div class="modal-header">
 					<h2 class="text-lg text-bold color-dark">Agendar Nova Tarefa</h2>
-					<button type="button" id="close-modal" class="close-btn">&times;</button>
+					<button type="button" id="close-modal" class="close-btn" data-close-modal="modal" data-reset-form="modal-form">&times;</button>
 				</div>
 				<form id="modal-form">
 					<div id="modal-alert" class="alert"></div>
@@ -83,7 +84,7 @@
 				<p id="confirm-message" class="text-base color-muted mb-4">Tem a certeza que deseja anular esta tarefa?</p>
 				<div class="grid-2">
 					<button type="button" id="confirm-cancel-btn" class="btn btn-primary w-full">Confirmar</button>
-					<button type="button" id="cancel-cancel-btn" class="btn btn-secondary w-full">Cancelar</button>
+					<button type="button" id="cancel-cancel-btn" class="btn btn-secondary w-full" data-close-modal="cancel-modal">Cancelar</button>
 				</div>
 			</div>
 		</div>

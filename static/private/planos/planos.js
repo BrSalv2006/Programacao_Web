@@ -1,14 +1,15 @@
 import { apiFetch } from '/js/storage/api.js'
 import { showAlert, hideAlert } from '/js/utils/alert.js'
+import { openModal, closeModal, setupModalCloseButtons } from '/js/utils/modal.js'
 
 document.addEventListener('DOMContentLoaded', () => {
+	setupModalCloseButtons()
+
 	const tbodyRegular = document.getElementById('table-regular-body')
 	const tbodyEmergencia = document.getElementById('table-emergencia-body')
 	const tbodyPontual = document.getElementById('table-pontual-body')
-	const modal = document.getElementById('modal')
 	const form = document.getElementById('modal-form')
 	const addButton = document.getElementById('add-btn')
-	const closeModalButton = document.getElementById('close-modal')
 	const ervaSelect = document.getElementById('ervaId')
 	const tipoSelect = document.getElementById('tipo')
 	const colheitaFrequenciaInput = document.getElementById('colheitaFrequenciaHoras')
@@ -17,6 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	let planos = []
 	let ervasOptions = []
 	let editingId = null
+	let userRole = sessionStorage.getItem('role') || 'Pendente'
+	let podeAprovar = ['Administrador', 'Responsável'].includes(userRole)
 
 	const tipoLabels = {
 		regular: 'Regular',
@@ -75,8 +78,23 @@ document.addEventListener('DOMContentLoaded', () => {
 		colheitaNoFimInput.disabled = hasFrequencia
 	}
 
+	async function loadUserRole() {
+		try {
+			const res = await apiFetch('/api/auth/me')
+			const data = await res.json()
+			if (res.ok && data.success) {
+				userRole = data.data.role
+				sessionStorage.setItem('role', userRole)
+			}
+		} catch {
+			userRole = sessionStorage.getItem('role') || 'Pendente'
+		}
+		podeAprovar = ['Administrador', 'Responsável'].includes(userRole)
+	}
+
 	async function loadBaseData() {
 		try {
+			await loadUserRole()
 			const ervasResponse = await apiFetch('/api/ervas?view=planos')
 			const ervasData = await ervasResponse.json()
 			if (ervasData.success) {
@@ -148,6 +166,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const renderPontualRow = (plano) => {
 			const ervaNome = plano.ervaId ? plano.ervaId.nome : 'N/A'
+			const autorizado = Boolean(plano.autorizadoPor && plano.dataAutorizacao)
+			const estadoLabel = autorizado ? 'Autorizado' : 'Pendente'
+			const approveBtn = (!autorizado && podeAprovar)
+				? `<button class="action-btn approve-btn" data-id="${plano._id}" title="Aprovar">Aprovar</button>`
+				: ''
 
 			return `
 			<tr>
@@ -155,6 +178,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				<td>${ervaNome}</td>
 				<td>${plano.finalidadePontual || 'N/A'}</td>
 				<td>
+					<span class="text-xs color-muted">${estadoLabel}</span>
+					${approveBtn}
 					<button class="action-btn edit-btn" data-id="${plano._id}" title="Editar">Editar</button>
 				</td>
 			</tr>
@@ -170,11 +195,30 @@ document.addEventListener('DOMContentLoaded', () => {
 		tbodyEmergencia.innerHTML = renderRows(planos.filter(p => p.tipo === 'emergência'), renderEmergenciaRow, 6)
 		tbodyPontual.innerHTML = renderRows(planos.filter(p => p.tipo === 'pontual'), renderPontualRow, 4)
 		document.querySelectorAll('.edit-btn').forEach(button => {
-			button.addEventListener('click', () => openModal(button.dataset.id))
+			button.addEventListener('click', () => openFormModal(button.dataset.id))
+		})
+		document.querySelectorAll('.approve-btn').forEach(button => {
+			button.addEventListener('click', () => aprovarPlano(button.dataset.id))
 		})
 	}
 
-	function openModal(id = null) {
+	async function aprovarPlano(planoId) {
+		try {
+			const response = await apiFetch(`/api/planos/${planoId}/aprovar`, { method: 'PATCH' })
+			const data = await response.json()
+
+			if (response.ok && data.success) {
+				showAlert('page-alert', 'Plano pontual aprovado com sucesso.', 'success')
+				await loadPlanos()
+			} else {
+				throw new Error(data.message || 'Erro ao aprovar plano pontual.')
+			}
+		} catch (error) {
+			showAlert('page-alert', error.message, 'error')
+		}
+	}
+
+	function openFormModal(id = null) {
 		hideAlert('modal-alert')
 		form.reset()
 		editingId = id
@@ -219,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		updateTypeFields()
-		modal.classList.add('open')
+		openModal('modal')
 	}
 
 	ervaSelect.addEventListener('change', (e) => {
@@ -243,8 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	})
 
-	addButton.addEventListener('click', () => openModal())
-	closeModalButton.addEventListener('click', () => modal.classList.remove('open'))
+	addButton.addEventListener('click', () => openFormModal())
 	tipoSelect.addEventListener('change', updateTypeFields)
 	colheitaNoFimInput.addEventListener('change', syncColheitaInputs)
 	colheitaFrequenciaInput.addEventListener('input', () => {
@@ -326,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (response.ok && data.success) {
 				form.reset()
-				modal.classList.remove('open')
+				closeModal('modal', 'modal-form')
 				loadPlanos()
 			} else {
 				throw new Error(data.message || 'Erro ao guardar dados.')

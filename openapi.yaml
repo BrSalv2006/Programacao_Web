@@ -1228,7 +1228,15 @@ components:
               type: array
               items:
                 type: string
-                enum: ["rega", "fertilização", "colheita", "monitorização"]
+                enum:
+                  [
+                    "rega",
+                    "fertilização",
+                    "colheita",
+                    "monitorização",
+                    "climatização",
+                    "iluminação",
+                  ]
             regaFrequenciaHoras:
               type: number
             monitorizacaoFrequenciaHoras:
@@ -1268,6 +1276,13 @@ components:
           properties:
             _id:
               type: string
+            autorizadoPor:
+              type: string
+              description: "ID do Responsável Técnico que autorizou o plano pontual"
+            dataAutorizacao:
+              type: string
+              format: date-time
+              description: "Data e hora da autorização explícita do plano"
             createdAt:
               type: string
               format: date-time
@@ -1402,7 +1417,18 @@ components:
           type: string
         tipo:
           type: string
-          enum: ["rega", "fertilização", "colheita", "monitorização", "outro"]
+          enum:
+            [
+              "rega",
+              "fertilização",
+              "colheita",
+              "monitorização",
+              "climatização",
+              "iluminação",
+              "outro",
+            ]
+        descricao:
+          type: string
         estado:
           type: string
           enum: ["Pendente", "Executada", "Expirada", "Anulada"]

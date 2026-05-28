@@ -20,6 +20,7 @@
 					<button id="add-btn" class="btn btn-primary">Novo Plano</button>
 				</div>
 			</header>
+			<div id="page-alert" class="alert"></div>
 			<h2 class="text-lg text-bold mb-4 color-dark">Planos Regulares</h2>
 			<section class="table-container mb-6">
 				<table class="table">
@@ -83,7 +84,7 @@
 			<div class="card modal-card">
 				<div class="modal-header">
 					<h2 id="modal-title" class="text-lg text-bold color-dark">Novo Plano de Cultivo</h2>
-					<button id="close-modal" class="close-btn" title="Fechar">×</button>
+					<button id="close-modal" class="close-btn" title="Fechar" data-close-modal="modal" data-reset-form="modal-form">×</button>
 				</div>
 				<form id="modal-form">
 					<div class="input-group">

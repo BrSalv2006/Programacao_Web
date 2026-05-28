@@ -8,8 +8,12 @@ const schema = new mongoose.Schema({
 	},
 	tipo: {
 		type: String,
-		enum: ['rega', 'fertilização', 'colheita', 'monitorização', 'outro'],
+		enum: ['rega', 'fertilização', 'colheita', 'monitorização', 'climatização', 'iluminação', 'outro'],
 		required: [true, 'O tipo de tarefa é obrigatório']
+	},
+	descricao: {
+		type: String,
+		trim: true
 	},
 	estado: {
 		type: String,

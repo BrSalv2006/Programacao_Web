@@ -1,8 +1,10 @@
 import { apiFetch } from '/js/storage/api.js'
+import { openModal, closeModal, setupModalCloseButtons } from '/js/utils/modal.js'
 
 document.addEventListener('DOMContentLoaded', () => {
+	setupModalCloseButtons()
+
 	const tbody = document.getElementById('table-body')
-	const modal = document.getElementById('modal')
 	const form = document.getElementById('modal-form')
 	const selectEstado = document.getElementById('estadoAcao')
 	const justGroup = document.getElementById('justificacao-group')
@@ -55,11 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			activeId = e.target.dataset.id
 			form.reset()
 			justGroup.classList.add('d-none')
-			modal.classList.add('open')
+			openModal('modal')
 		}))
 	}
-
-	document.getElementById('close-modal').addEventListener('click', () => modal.classList.remove('open'))
 
 	form.addEventListener('submit', async (e) => {
 		e.preventDefault()
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const res = await apiFetch(`/api/medicoes/alertas/${activeId}`, {
 				method: 'PATCH', body: JSON.stringify({ estado, justificacao })
 			})
-			if (res.ok) { modal.classList.remove('open'); loadAlertas() }
+			if (res.ok) { closeModal('modal', 'modal-form'); loadAlertas() }
 		} catch (err) { console.error(err) }
 	})
 

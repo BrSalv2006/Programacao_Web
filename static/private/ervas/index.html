@@ -47,7 +47,7 @@
 			<div class="card modal-card max-w-600">
 				<div class="modal-header">
 					<h2 id="modal-title" class="text-lg text-bold color-dark">Nova Erva Aromática</h2>
-					<button type="button" id="close-modal" class="close-btn">&times;</button>
+					<button type="button" id="close-modal" class="close-btn" data-close-modal="modal" data-reset-form="modal-form">&times;</button>
 				</div>
 				<form id="modal-form">
 					<div id="modal-alert" class="alert"></div>
@@ -114,7 +114,7 @@
 			<div class="card modal-card import-modal-card">
 				<div class="modal-header">
 					<h2 class="text-lg text-bold color-dark">Importar Ervas via CSV</h2>
-					<button type="button" id="close-import" class="close-btn">&times;</button>
+					<button type="button" id="close-import" class="close-btn" data-close-modal="import-modal" data-reset-form="import-form">&times;</button>
 				</div>
 				<form id="import-form" class="import-form">
 					<div class="mb-4 import-help">
@@ -146,7 +146,7 @@
 			<div class="card modal-card max-w-400">
 				<div class="modal-header">
 					<h2 class="text-lg text-bold color-dark">Descrição da Erva</h2>
-					<button type="button" id="close-desc-modal" class="close-btn">&times;</button>
+					<button type="button" id="close-desc-modal" class="close-btn" data-close-modal="desc-modal">&times;</button>
 				</div>
 				<p id="desc-text" class="text-base color-muted mt-4 whitespace-pre-wrap"></p>
 			</div>

@@ -35,21 +35,85 @@ export function avaliarFalhasSensor(medicao) {
 export function avaliarCondicoesPlano(medicao, condicoes = {}) {
 	const problemas = []
 
-	if (valorValido(condicoes.temperaturaMax) && medicao.temperatura > condicoes.temperaturaMax) problemas.push('Temperatura alta')
-	if (valorValido(condicoes.temperaturaMin) && medicao.temperatura < condicoes.temperaturaMin) problemas.push('Temperatura baixa')
-	if (valorValido(condicoes.humidadeMax) && medicao.humidade > condicoes.humidadeMax) problemas.push('Humidade alta')
-	if (valorValido(condicoes.humidadeMin) && medicao.humidade < condicoes.humidadeMin) problemas.push('Humidade baixa')
-	if (valorValido(condicoes.luminosidadeMax) && medicao.luminosidade > condicoes.luminosidadeMax) problemas.push('Luminosidade alta')
-	if (valorValido(condicoes.luminosidadeMin) && medicao.luminosidade < condicoes.luminosidadeMin) problemas.push('Luminosidade baixa')
+	if (valorValido(condicoes.temperaturaMax) && medicao.temperatura > condicoes.temperaturaMax)
+		problemas.push({ tipo: 'temperatura_alta', msg: `Temperatura alta: Real ${medicao.temperatura}ºC, Max Esperado: ${condicoes.temperaturaMax}ºC` })
+	if (valorValido(condicoes.temperaturaMin) && medicao.temperatura < condicoes.temperaturaMin)
+		problemas.push({ tipo: 'temperatura_baixa', msg: `Temperatura baixa: Real ${medicao.temperatura}ºC, Min Esperado: ${condicoes.temperaturaMin}ºC` })
+
+	if (valorValido(condicoes.humidadeMax) && medicao.humidade > condicoes.humidadeMax)
+		problemas.push({ tipo: 'humidade_alta', msg: `Humidade alta: Real ${medicao.humidade}%, Max Esperado: ${condicoes.humidadeMax}%` })
+	if (valorValido(condicoes.humidadeMin) && medicao.humidade < condicoes.humidadeMin)
+		problemas.push({ tipo: 'humidade_baixa', msg: `Humidade baixa: Real ${medicao.humidade}%, Min Esperado: ${condicoes.humidadeMin}%` })
+
+	if (valorValido(condicoes.luminosidadeMax) && medicao.luminosidade > condicoes.luminosidadeMax)
+		problemas.push({ tipo: 'luminosidade_alta', msg: `Luminosidade alta: Real ${medicao.luminosidade}lux, Max Esperado: ${condicoes.luminosidadeMax}lux` })
+	if (valorValido(condicoes.luminosidadeMin) && medicao.luminosidade < condicoes.luminosidadeMin)
+		problemas.push({ tipo: 'luminosidade_baixa', msg: `Luminosidade baixa: Real ${medicao.luminosidade}lux, Min Esperado: ${condicoes.luminosidadeMin}lux` })
 
 	return problemas
 }
 
 export function escolherAcaoAutomacao(problemas) {
-	if (problemas.includes('Humidade baixa')) return { tarefa: 'rega', descricao: 'Ativar rega' }
-	if (problemas.includes('Temperatura alta')) return { tarefa: 'monitorização', descricao: 'Ajustar ventilação' }
-	if (problemas.some(problema => problema.includes('Luminosidade'))) return { tarefa: 'monitorização', descricao: 'Ajustar luminosidade' }
-	return { tarefa: 'monitorização', descricao: 'Verificar condições ambientais' }
+	const acoes = []
+
+	// Mapear booleanos para facilitar a leitura das regras compostas
+	const tempAlta = problemas.some(p => p.tipo === 'temperatura_alta')
+	const tempBaixa = problemas.some(p => p.tipo === 'temperatura_baixa')
+	const humAlta = problemas.some(p => p.tipo === 'humidade_alta')
+	const humBaixa = problemas.some(p => p.tipo === 'humidade_baixa')
+	const luzAlta = problemas.some(p => p.tipo === 'luminosidade_alta')
+	const luzBaixa = problemas.some(p => p.tipo === 'luminosidade_baixa')
+
+	// 1. REGRAS COMBINADAS (Onde há conflito)
+	if (tempAlta && humAlta) {
+		// Se estiver muito calor E muito húmido, NÃO PODEMOS REGAR. Temos de extrair o ar.
+		acoes.push({ tarefa: 'climatização', descricao: 'Ativar extração máxima de ar (Calor e Humidade extremos)' })
+		acoes.push({ tarefa: 'iluminação', descricao: 'Fechar estores térmicos' })
+	} else if (tempAlta) {
+		// Se só estiver calor (mas sem humidade alta), podemos usar água para refrescar
+		acoes.push({ tarefa: 'climatização', descricao: 'Ligar sistema de arrefecimento' })
+		acoes.push({ tarefa: 'rega', descricao: 'Rega curta para arrefecimento do solo' })
+		acoes.push({ tarefa: 'iluminação', descricao: 'Fechar estores térmicos' })
+	}
+
+	if (tempBaixa && humAlta) {
+		acoes.push({ tarefa: 'climatização', descricao: 'Ligar aquecimento e ventilação suave (Frio e Humidade)' })
+	} else if (tempBaixa) {
+		acoes.push({ tarefa: 'climatização', descricao: 'Ligar sistema de aquecimento' })
+	}
+
+	// 2. REGRAS ISOLADAS DE HUMIDADE (Se não colidirem com as de cima)
+	if (humAlta && !tempAlta && !tempBaixa) {
+		acoes.push({ tarefa: 'climatização', descricao: 'Aumentar ventilação / Ativar extratores' })
+	}
+	if (humBaixa) {
+		acoes.push({ tarefa: 'rega', descricao: 'Ativar sistema de aspersão para repor humidade' })
+	}
+
+	// 3. REGRAS DE LUMINOSIDADE
+	if (luzBaixa) {
+		acoes.push({ tarefa: 'iluminação', descricao: 'Ligar lâmpadas de crescimento (Grow Lights)' })
+	}
+	if (luzAlta && !tempAlta) { // Se a tempAlta for verdade, os estores já foram fechados acima
+		acoes.push({ tarefa: 'iluminação', descricao: 'Ativar sombreamento parcial' })
+	}
+
+	// Remove duplicados exatos
+	const acoesUnicas = []
+	const descricoesVistas = new Set()
+
+	for (const acao of acoes) {
+		if (!descricoesVistas.has(acao.descricao)) {
+			descricoesVistas.add(acao.descricao)
+			acoesUnicas.push(acao)
+		}
+	}
+
+	if (acoesUnicas.length === 0 && problemas.length > 0) {
+		acoesUnicas.push({ tarefa: 'monitorização', descricao: 'Verificar anomalias nos sensores ambientais' })
+	}
+
+	return acoesUnicas
 }
 
 function obterDataAgendadaPreferencial(horarioPreferencial) {
@@ -86,59 +150,86 @@ export async function processarNovaMedicao(body, user) {
 	}
 
 	if (lote && lote.planoId && lote.planoId.condicoesIdeais && falhasSensor.length === 0) {
-		const problemas = avaliarCondicoesPlano(novaMedicao, lote.planoId.condicoesIdeais)
+		const problemasDocs = avaliarCondicoesPlano(novaMedicao, lote.planoId.condicoesIdeais)
 
-		if (problemas.length > 0) {
-			const acao = escolherAcaoAutomacao(problemas)
+		if (problemasDocs.length > 0) {
+			const mensagens = problemasDocs.map(p => p.msg)
+			const acoes = escolherAcaoAutomacao(problemasDocs) // Aqui recebe o array de ações
+
 			await Alerta.create({
 				loteId: lote._id,
 				medicaoId: novaMedicao._id,
-				nivel: problemas.some(p => p.includes('alta') || p.includes('baixa')) ? 'Crítico' : 'Aviso',
-				tipo: problemas.join(', ')
+				nivel: problemasDocs.some(p => p.tipo.includes('alta') || p.tipo.includes('baixa')) ? 'Crítico' : 'Aviso',
+				tipo: mensagens.join(' | ')
 			})
 
 			const horarioPreferencial = lote.planoId?.tarefasOperacionais?.horarioPreferencial
 			const dataAgendada = obterDataAgendadaPreferencial(horarioPreferencial)
 
-			if (lote.modo === 'Automático') {
-				const tarefa = await Tarefa.create({
-					loteId: lote._id,
-					tipo: acao.tarefa,
-					estado: 'Executada',
-					dataAgendada: dataAgendada,
-					dataExecucao: new Date()
-				})
+			// CICLO FOR PARA PROCESSAR TODAS AS AÇÕES SIMULTÂNEAS
+			for (const acao of acoes) {
+				if (lote.modo === 'Automático') {
+					const hardwarePayload = {
+						dispositivoId: `ATUADOR-${lote._id.toString().substring(0, 6).toUpperCase()}`,
+						comando: acao.tarefa.toUpperCase(),
+						parametros: acao.descricao,
+						timestamp: new Date().toISOString()
+					}
+					console.log('[SIMULAÇÃO HARDWARE IoT] -> Comando enviado:', hardwarePayload)
 
-				await LogAuditoria.create({
-					utilizadorId: user._id,
-					acao: 'EXECUTAR_AUTOMACAO',
-					entidade: 'Tarefa',
-					entidadeId: tarefa._id,
-					detalhes: { acao: acao.descricao, problemas, modo: lote.modo }
-				})
-			} else {
-				const tarefa = await Tarefa.create({
-					loteId: lote._id,
-					tipo: acao.tarefa,
-					estado: 'Pendente',
-					dataAgendada: dataAgendada
-				})
+					const tarefa = await Tarefa.create({
+						loteId: lote._id,
+						tipo: acao.tarefa,
+						descricao: acao.descricao,
+						estado: 'Pendente',
+						dataAgendada: dataAgendada
+					})
 
-				await Alerta.create({
-					loteId: lote._id,
-					medicaoId: novaMedicao._id,
-					nivel: 'Informativo',
-					tipo: `Sugestão de automação: ${acao.descricao}`
-				})
+					await LogAuditoria.create({
+						utilizadorId: user._id,
+						acao: 'CRIAR_TAREFA_AUTOMATICA',
+						entidade: 'Tarefa',
+						entidadeId: tarefa._id,
+						detalhes: { acao: acao.descricao, problemas: mensagens, modo: lote.modo }
+					})
 
-				await LogAuditoria.create({
-					utilizadorId: user._id,
-					acao: 'SUGERIR_AUTOMACAO',
-					entidade: 'Tarefa',
-					entidadeId: tarefa._id,
-					detalhes: { acao: acao.descricao, problemas, modo: lote.modo }
-				})
-			}
+					const agora = new Date()
+					tarefa.estado = 'Executada'
+					tarefa.dataExecucao = agora
+					tarefa.responsavelId = user?._id
+					await tarefa.save()
+
+					await LogAuditoria.create({
+						utilizadorId: user._id,
+						acao: 'EXECUTAR_AUTOMACAO',
+						entidade: 'Tarefa',
+						entidadeId: tarefa._id,
+						detalhes: { acao: acao.descricao, problemas: mensagens, modo: lote.modo, emulacaoIoT: hardwarePayload, dataExecucao: agora }
+					})
+				} else {
+					const tarefa = await Tarefa.create({
+						loteId: lote._id,
+						tipo: acao.tarefa,
+						estado: 'Pendente',
+						dataAgendada: dataAgendada
+					})
+
+					await Alerta.create({
+						loteId: lote._id,
+						medicaoId: novaMedicao._id,
+						nivel: 'Informativo',
+						tipo: `Sugestão de automação: ${acao.descricao}`
+					})
+
+					await LogAuditoria.create({
+						utilizadorId: user._id,
+						acao: 'SUGERIR_AUTOMACAO',
+						entidade: 'Tarefa',
+						entidadeId: tarefa._id,
+						detalhes: { acao: acao.descricao, problemas: mensagens, modo: lote.modo }
+					})
+				}
+			} // Fim do For
 		}
 	}
 

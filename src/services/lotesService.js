@@ -3,6 +3,7 @@ import Tarefa from '../models/tarefa.js'
 import LoteCultivo from '../models/loteCultivo.js'
 import MedicaoAmbiental from '../models/medicaoAmbiental.js'
 import LogAuditoria from '../models/logAuditoria.js'
+import Alerta from '../models/alerta.js'
 import { csvLine } from './csvUtils.js'
 
 export async function gerarTarefasAutomaticas(lote) {
@@ -314,7 +315,7 @@ export async function comprometerLote(loteId, user) {
 	return { status: 200, payload: { success: true, data: lote } }
 }
 
-export async function obterResumoLote(loteId) {
+export async function obterResumoLote(loteId, queryParams = {}) {
 	const lote = await LoteCultivo.findById(loteId)
 		.populate('ervaId', 'nome')
 		.populate('planoId')
@@ -324,10 +325,27 @@ export async function obterResumoLote(loteId) {
 		return { status: 404, payload: { success: false, message: 'Lote não encontrado.' } }
 	}
 
-	const [tarefasPendentes, tarefasExecutadas, medicoes] = await Promise.all([
+	const limit = queryParams.limit ? parseInt(queryParams.limit, 10) : 0
+	const page = queryParams.page ? parseInt(queryParams.page, 10) : 1
+	const skip = limit ? (page - 1) * limit : 0
+
+	const medicoesFilter = { loteId: lote._id }
+	if (queryParams.dataInicio || queryParams.dataFim) {
+		medicoesFilter.dataHora = {}
+		if (queryParams.dataInicio) medicoesFilter.dataHora.$gte = new Date(queryParams.dataInicio)
+		if (queryParams.dataFim) medicoesFilter.dataHora.$lte = new Date(queryParams.dataFim)
+	}
+
+	const medicoesQuery = MedicaoAmbiental.find(medicoesFilter).sort({ dataHora: -1 })
+	if (limit) {
+		medicoesQuery.skip(skip).limit(limit)
+	}
+
+	const [tarefasPendentes, tarefasExecutadas, medicoes, alertas] = await Promise.all([
 		Tarefa.find({ loteId: lote._id, estado: 'Pendente' }).sort({ dataAgendada: 1 }),
 		Tarefa.find({ loteId: lote._id, estado: 'Executada' }).sort({ dataExecucao: -1 }),
-		MedicaoAmbiental.find({ loteId: lote._id }).sort({ dataHora: -1 }).limit(50)
+		medicoesQuery,
+		Alerta.find({ loteId: lote._id }).sort({ createdAt: -1 })
 	])
 
 	return {
@@ -339,7 +357,8 @@ export async function obterResumoLote(loteId) {
 				planos: lote.planosAssociados,
 				tarefasPendentes,
 				tarefasExecutadas,
-				medicoes
+				medicoes,
+				alertas
 			}
 		}
 	}

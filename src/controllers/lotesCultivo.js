@@ -89,7 +89,7 @@ router.patch('/:id/comprometer', requireRole('Administrador', 'Responsável'), a
 }))
 
 router.get('/:id/resumo', asyncHandler(async (req, res) => {
-	const resultado = await obterResumoLote(req.params.id)
+	const resultado = await obterResumoLote(req.params.id, req.query)
 	res.status(resultado.status).json(resultado.payload)
 }))
 

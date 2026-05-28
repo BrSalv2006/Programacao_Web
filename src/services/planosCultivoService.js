@@ -15,9 +15,78 @@ function validarTarefasOperacionais(body) {
 	return null
 }
 
+function podeAutorizarPontual(user) {
+	return ['Administrador', 'Responsável'].includes(user?.role)
+}
+
+function filtroPlanosSelect() {
+	return {
+		$or: [
+			{ tipo: { $ne: 'pontual' } },
+			{
+				tipo: 'pontual',
+				autorizadoPor: { $exists: true, $ne: null },
+				dataAutorizacao: { $exists: true, $ne: null }
+			}
+		]
+	}
+}
+
+function limparCamposAutorizacao(payload) {
+	delete payload.autorizadoPor
+	delete payload.dataAutorizacao
+	delete payload.autorizarPontual
+}
+
+function prepararAutorizacaoCriacao(payload, user) {
+	if (payload.tipo !== 'pontual') {
+		limparCamposAutorizacao(payload)
+		return { autorizacaoAplicada: false }
+	}
+
+	if (!podeAutorizarPontual(user)) {
+		limparCamposAutorizacao(payload)
+		return { autorizacaoAplicada: false }
+	}
+
+	payload.autorizadoPor = user._id
+	payload.dataAutorizacao = new Date()
+	delete payload.autorizarPontual
+	return { autorizacaoAplicada: true }
+}
+
+function prepararAutorizacaoAtualizacao(payload, user, planoExistente) {
+	const tipoAtual = payload.tipo || planoExistente?.tipo
+	if (tipoAtual !== 'pontual') {
+		limparCamposAutorizacao(payload)
+		return { autorizacaoAplicada: false }
+	}
+
+	const solicitouAutorizacao = Boolean(payload.autorizarPontual)
+	if (solicitouAutorizacao && !podeAutorizarPontual(user)) {
+		return {
+			erro: {
+				status: 403,
+				payload: { success: false, message: 'Apenas responsáveis e administradores podem autorizar planos pontuais.' }
+			}
+		}
+	}
+
+	limparCamposAutorizacao(payload)
+
+	let autorizacaoAplicada = false
+	if (solicitouAutorizacao && podeAutorizarPontual(user)) {
+		payload.autorizadoPor = user._id
+		payload.dataAutorizacao = new Date()
+		autorizacaoAplicada = true
+	}
+
+	return { autorizacaoAplicada }
+}
+
 export async function listarPlanos(view) {
 	if (view === 'select') {
-		return PlanoCultivo.find()
+		return PlanoCultivo.find(filtroPlanosSelect())
 			.select('nome tipo ervaId')
 			.sort({ createdAt: -1 })
 	}
@@ -33,14 +102,17 @@ export async function criarPlano(body, user) {
 		return { status: 400, payload: { success: false, message: erroValidacao } }
 	}
 
-	const novoPlano = await PlanoCultivo.create(body)
+	const payload = { ...body }
+	const autorizacao = prepararAutorizacaoCriacao(payload, user)
+
+	const novoPlano = await PlanoCultivo.create(payload)
 
 	await LogAuditoria.create({
 		utilizadorId: user._id,
 		acao: 'CRIAR_PLANO_CULTIVO',
 		entidade: 'PlanoCultivo',
 		entidadeId: novoPlano._id,
-		detalhes: { tipo: novoPlano.tipo, ervaId: novoPlano.ervaId }
+		detalhes: { tipo: novoPlano.tipo, ervaId: novoPlano.ervaId, autorizadoPontual: autorizacao.autorizacaoAplicada }
 	})
 
 	return { status: 201, payload: { success: true, data: novoPlano } }
@@ -52,7 +124,18 @@ export async function atualizarPlano(planoId, body, user) {
 		return { status: 400, payload: { success: false, message: erroValidacao } }
 	}
 
-	const planoAtualizado = await PlanoCultivo.findByIdAndUpdate(planoId, body, { returnDocument: 'after', runValidators: true })
+	const planoExistente = await PlanoCultivo.findById(planoId)
+	if (!planoExistente) {
+		return { status: 404, payload: { success: false, message: 'Plano não encontrado.' } }
+	}
+
+	const payload = { ...body }
+	const autorizacao = prepararAutorizacaoAtualizacao(payload, user, planoExistente)
+	if (autorizacao.erro) {
+		return autorizacao.erro
+	}
+
+	const planoAtualizado = await PlanoCultivo.findByIdAndUpdate(planoId, payload, { returnDocument: 'after', runValidators: true })
 
 	if (!planoAtualizado) {
 		return { status: 404, payload: { success: false, message: 'Plano não encontrado.' } }
@@ -73,8 +156,40 @@ export async function atualizarPlano(planoId, body, user) {
 		acao: 'ATUALIZAR_PLANO_CULTIVO',
 		entidade: 'PlanoCultivo',
 		entidadeId: planoAtualizado._id,
-		detalhes: body
+		detalhes: { ...body, autorizadoPontual: autorizacao.autorizacaoAplicada }
 	})
 
 	return { status: 200, payload: { success: true, data: planoAtualizado } }
+}
+
+export async function aprovarPlanoPontual(planoId, user) {
+	if (!podeAutorizarPontual(user)) {
+		return { status: 403, payload: { success: false, message: 'Apenas responsáveis e administradores podem autorizar planos pontuais.' } }
+	}
+
+	const plano = await PlanoCultivo.findById(planoId)
+	if (!plano) {
+		return { status: 404, payload: { success: false, message: 'Plano não encontrado.' } }
+	}
+
+	if (plano.tipo !== 'pontual') {
+		return { status: 400, payload: { success: false, message: 'Apenas planos pontuais podem ser autorizados.' } }
+	}
+
+	const jaAutorizado = Boolean(plano.autorizadoPor && plano.dataAutorizacao)
+	if (!jaAutorizado) {
+		plano.autorizadoPor = user._id
+		plano.dataAutorizacao = new Date()
+		await plano.save()
+
+		await LogAuditoria.create({
+			utilizadorId: user._id,
+			acao: 'AUTORIZAR_PLANO_PONTUAL',
+			entidade: 'PlanoCultivo',
+			entidadeId: plano._id,
+			detalhes: { tipo: plano.tipo, ervaId: plano.ervaId }
+		})
+	}
+
+	return { status: 200, payload: { success: true, data: plano } }
 }

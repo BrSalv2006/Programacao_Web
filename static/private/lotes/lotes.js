@@ -5,6 +5,13 @@ import { openModal, closeModal, setupModalCloseButtons } from '/js/utils/modal.j
 document.addEventListener('DOMContentLoaded', () => {
 	setupModalCloseButtons()
 
+	const addBtn = document.getElementById('add-btn')
+	if (addBtn) addBtn.addEventListener('click', () => {
+		const form = document.getElementById('modal-form')
+		if (form) form.reset()
+		openModal('modal')
+	})
+
 	const tbody = document.getElementById('table-body')
 	const forms = {
 		criar: document.getElementById('modal-form'),
@@ -16,6 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	let lotes = [], activeLoteId = null, todosPlanos = []
+	let resumoLoteId = null
+	let resumoPage = 1
+	const resumoLimit = 10
+	let resumoMedicoes = []
+	let resumoSnapshot = null
+	let resumoHasMore = false
 
 	async function loadBaseData() {
 		try {
@@ -92,15 +105,18 @@ document.addEventListener('DOMContentLoaded', () => {
 				? `<button class="action-btn hist-btn" data-id="${lote._id}">Ver Histórico</button>`
 				: '<span class="text-xs color-muted">Sem histórico</span>'
 
+			const btnResumo = `<button class="action-btn resumo-btn text-bold color-primary" data-id="${lote._id}">Ver Detalhes</button>`
+
 			const acoesHtml = lote.estado === 'ativo'
 				? `
+					${btnResumo}
 					<button class="action-btn alt-plano-btn" data-id="${lote._id}" data-ervaid="${lote.ervaId?._id || lote.ervaId}">Alt. Plano</button>
 					<button class="action-btn div-btn" data-id="${lote._id}">Dividir</button>
 					<button class='action-btn perdas-btn text-warning' data-id="${lote._id}">Perdas</button>
 					<button class="action-btn conc-btn" data-id="${lote._id}">Concluir</button>
 					<button class="action-btn comprometer-btn color-danger" data-id="${lote._id}">Comprometer</button>
 				`
-				: `<span class="text-xs color-muted">Prod.: ${lote.produtividade ?? 0}%</span>`
+				: `${btnResumo} <span class="text-xs color-muted ml-2">Prod.: ${lote.produtividade ?? 0}%</span>`
 
 			return `
 			<tr>
@@ -123,7 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		activeLoteId = target.dataset.id
 		const loteAtual = lotes.find(l => l._id === activeLoteId)
 
-		if (target.classList.contains('alt-plano-btn')) {
+		if (target.classList.contains('resumo-btn')) {
+			abrirResumoLote(activeLoteId)
+		}
+		else if (target.classList.contains('alt-plano-btn')) {
 			const ervaId = target.dataset.ervaid
 			const planosFiltrados = todosPlanos.filter(p => (p.ervaId?._id || p.ervaId) === ervaId && p.tipo === 'regular')
 			const selectNovoPlano = document.getElementById('novoPlanoId')
@@ -156,7 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	})
 
-	document.getElementById('add-btn').addEventListener('click', () => openModal('modal'))
 	document.getElementById('export-btn').addEventListener('click', () => window.open('/api/lotes/exportar', '_blank'))
 
 	forms.criar.addEventListener('submit', async (e) => {
@@ -250,6 +268,141 @@ document.addEventListener('DOMContentLoaded', () => {
 			} else throw new Error(data.message || 'Erro ao comprometer lote.')
 		} catch (error) { showAlert('comprometer-alert', error.message, 'error') }
 	})
+
+	function renderResumo() {
+		if (!resumoSnapshot) return
+
+		const dataContainer = document.getElementById('resumo-data')
+		const { lote, tarefasPendentes, tarefasExecutadas, alertas } = resumoSnapshot
+
+		const loteInfo = `
+				<div class="grid-2 mb-4 p-4 bg-light-rounded">
+					<div><p class="text-sm color-muted">Erva Cultivada</p><p class="text-bold">${lote.ervaId?.nome || 'N/A'}</p></div>
+					<div><p class="text-sm color-muted">Modo / Estado</p><p class="text-bold">${lote.modo} / <span class="color-primary">${lote.estado}</span></p></div>
+					<div class="mt-2"><p class="text-sm color-muted">Quantidades (Inicial / Atual)</p><p class="text-bold">${lote.quantidadeInicial} / ${lote.quantidadeAtual ?? (lote.quantidadeInicial - lote.perdas)} uds</p></div>
+					<div class="mt-2"><p class="text-sm color-muted">Perdas Registadas</p><p class="text-bold color-danger">${lote.perdas} uds</p></div>
+				</div>
+			`
+
+		const alertasHtml = alertas?.length > 0
+			? alertas.slice(0, 5).map(a => `
+				<div class="alerta-card ${a.nivel === 'Crítico' ? 'border-left-danger' : 'border-left-warning'}">
+					<div class="text-sm text-bold">${a.nivel} - ${new Date(a.createdAt).toLocaleString('pt-PT')}</div>
+					<div class="text-sm">${a.tipo} <span class="color-muted text-xs">(${a.estado})</span></div>
+				</div>`).join('')
+			: '<p class="text-sm color-muted">Nenhum alerta registado para este lote.</p>'
+
+		const tarefasPendHtml = tarefasPendentes?.length > 0
+			? `<ul class="list-disc">${tarefasPendentes.slice(0, 5).map(t => `<li class="text-sm">${new Date(t.dataAgendada).toLocaleDateString('pt-PT')} - <strong>${t.tipo}</strong></li>`).join('')}</ul>`
+			: '<p class="text-sm color-muted">Sem tarefas pendentes.</p>'
+
+		const tarefasExecHtml = tarefasExecutadas?.length > 0
+			? `<ul class="list-disc">${tarefasExecutadas.slice(0, 5).map(t => `<li class="text-sm">${new Date(t.dataExecucao).toLocaleDateString('pt-PT')} - <strong>${t.tipo}</strong></li>`).join('')}</ul>`
+			: '<p class="text-sm color-muted">Nenhuma tarefa executada.</p>'
+
+		const medicoesHtml = resumoMedicoes.length > 0
+			? `<table class="table text-sm w-full mt-2">
+				<thead><tr><th>Data/Hora</th><th>Temp.</th><th>Humid.</th><th>Lumin.</th></tr></thead>
+				<tbody>${resumoMedicoes.map(m => `
+					<tr>
+						<td>${new Date(m.dataHora).toLocaleString('pt-PT')}</td>
+						<td>${m.temperatura} ºC</td>
+						<td>${m.humidade} %</td>
+						<td>${m.luminosidade} lx</td>
+					</tr>
+				`).join('')}</tbody>
+			   </table>`
+			: '<p class="text-sm color-muted">Nenhuma medição ambiental registada.</p>'
+
+		dataContainer.innerHTML = `
+				${loteInfo}
+				<h3 class="text-md text-bold mb-2 border-bottom pb-1">🚨 Últimos Alertas</h3>
+				<div class="mb-4">${alertasHtml}</div>
+
+				<div class="grid-2 gap-4 mb-4">
+					<div><h3 class="text-md text-bold mb-2 border-bottom pb-1">📅 Tarefas Pendentes</h3>${tarefasPendHtml}</div>
+					<div><h3 class="text-md text-bold mb-2 border-bottom pb-1">✅ Tarefas Executadas</h3>${tarefasExecHtml}</div>
+				</div>
+
+				<h3 class="text-md text-bold mb-2 border-bottom pb-1">📊 Histórico de Medições</h3>
+				<div class="overflow-x-auto">${medicoesHtml}</div>
+				<div class="mt-3 text-center">
+					<button id="medicoes-load-more" class="btn btn-secondary">Carregar mais</button>
+				</div>
+			`
+
+		const loadMoreBtn = document.getElementById('medicoes-load-more')
+		if (loadMoreBtn) {
+			loadMoreBtn.classList.toggle('d-none', !resumoHasMore)
+			loadMoreBtn.addEventListener('click', carregarMaisMedicoes)
+		}
+	}
+
+	async function carregarResumoPagina(page) {
+		const response = await apiFetch(`/api/lotes/${resumoLoteId}/resumo?limit=${resumoLimit}&page=${page}`)
+		const json = await response.json()
+
+		if (!response.ok || !json.success) throw new Error(json.message || 'Erro ao carregar resumo.')
+
+		const { lote, tarefasPendentes, tarefasExecutadas, medicoes, alertas } = json.data
+		if (page === 1) {
+			resumoSnapshot = { lote, tarefasPendentes, tarefasExecutadas, alertas }
+			resumoMedicoes = []
+		}
+
+		resumoMedicoes = resumoMedicoes.concat(medicoes || [])
+		resumoHasMore = (medicoes || []).length === resumoLimit
+		renderResumo()
+	}
+
+	async function carregarMaisMedicoes() {
+		if (!resumoHasMore) return
+
+		const loadMoreBtn = document.getElementById('medicoes-load-more')
+		if (loadMoreBtn) {
+			loadMoreBtn.disabled = true
+			loadMoreBtn.textContent = 'A carregar...'
+		}
+
+		try {
+			resumoPage += 1
+			await carregarResumoPagina(resumoPage)
+		} catch (error) {
+			showAlert('page-alert', error.message, 'error')
+		} finally {
+			const updatedBtn = document.getElementById('medicoes-load-more')
+			if (updatedBtn) {
+				updatedBtn.disabled = false
+				updatedBtn.textContent = 'Carregar mais'
+			}
+		}
+	}
+
+	async function abrirResumoLote(id) {
+		openModal('resumo-modal')
+		const dataContainer = document.getElementById('resumo-data')
+		const loading = document.getElementById('resumo-loading')
+
+		resumoLoteId = id
+		resumoPage = 1
+		resumoMedicoes = []
+		resumoSnapshot = null
+		resumoHasMore = false
+
+		loading.classList.remove('d-none')
+		dataContainer.classList.add('d-none')
+		loading.innerHTML = 'A carregar informações...'
+
+		try {
+			await carregarResumoPagina(1)
+
+			loading.classList.add('d-none')
+			dataContainer.classList.remove('d-none')
+
+		} catch (error) {
+			loading.innerHTML = `<span class="color-danger">${error.message}</span>`
+		}
+	}
 
 	loadBaseData()
 })

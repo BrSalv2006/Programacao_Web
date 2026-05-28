@@ -45,8 +45,8 @@ const schema = new mongoose.Schema({
 	tarefasOperacionais: {
 		tiposPermitidos: {
 			type: [String],
-			enum: ['rega', 'fertilização', 'colheita', 'monitorização'],
-			default: ['rega', 'fertilização', 'colheita', 'monitorização']
+			enum: ['rega', 'fertilização', 'colheita', 'monitorização', 'climatização', 'iluminação'],
+			default: ['rega', 'fertilização', 'colheita', 'monitorização', 'climatização', 'iluminação']
 		},
 		regaFrequenciaHoras: {
 			type: Number,
@@ -57,14 +57,14 @@ const schema = new mongoose.Schema({
 			type: Number,
 			required: false
 		},
-			colheitaFrequenciaHoras: {
-				type: Number,
-				required: false
-			},
-			colheitaNoFim: {
-				type: Boolean,
-				default: false
-			},
+		colheitaFrequenciaHoras: {
+			type: Number,
+			required: false
+		},
+		colheitaNoFim: {
+			type: Boolean,
+			default: false
+		},
 		fertilizacaoDosagem: {
 			type: String,
 			required: false
@@ -104,6 +104,13 @@ const schema = new mongoose.Schema({
 		type: String,
 		trim: true,
 		required: function () { return this.tipo === 'pontual' }
+	},
+	autorizadoPor: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'User'
+	},
+	dataAutorizacao: {
+		type: Date
 	}
 }, { timestamps: true })
 
